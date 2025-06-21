@@ -1,84 +1,241 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estado de Conexión a la Base de Datos - Unidad Educativa Litin</title>
-  <style>
-  /* Estilos generales del cuerpo de la página */
-  body { 
- font-family: Arial, sans-serif; 
- margin: 20px; 
-  background-color: #f4f7f6; /* Fondo suave */
-  color: #333; /* Color de texto principal */
- display: flex;
- justify-content: center;
-  align-items: center;
-  min-height: 100vh; /* Altura mínima para centrar verticalmente */
-  flex-direction: column;
-  }
-/* Estilos para el título principal */
- h1 {
- color: #2c3e50; /* Azul oscuro */
- text-align: center;
- margin-bottom: 30px;
- }
-
- /* Estilos para los mensajes de feedback (éxito/error) */
-.message {
- margin-top: 15px; /* Espacio superior */
-padding: 15px 25px; /* Relleno interno */
-border-radius: 8px; /* Esquinas redondeadas */
-text-align: center; /* Texto centrado */
- font-weight: bold; /* Negrita */
- box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Sombra suave */
- min-width: 300px;
- max-width: 500px;
-}
- .message.success {
- background-color: #d4edda; /* Fondo verde claro */
- color: #155724; /* Texto verde oscuro */
- border: 1px solid #c3e6cb; /* Borde verde claro */
- }
- /* Estilo para mensajes de error */
- .message.error {
- background-color: #f8d7da; /* Fondo rojo claro */
- color: #721c24; /* Texto rojo oscuro */
- border: 1px solid #f5c6cb; /* Borde rojo claro */
- }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro y Gestión de Usuarios</title>
+    <!-- Carga de Tailwind CSS para estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fuentes Inter para una mejor legibilidad */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos personalizados para la tabla de usuarios */
+        .table-auto th, .table-auto td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0; /* Color gris claro */
+        }
+        .table-auto th {
+            background-color: #edf2f7; /* Color de fondo para encabezados */
+            font-weight: bold;
+            color: #2d3748; /* Color de texto oscuro */
+        }
+        /* Estilo para los botones de eliminar */
+        .delete-btn {
+            background-color: #ef4444; /* Rojo */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .delete-btn:hover {
+            background-color: #dc2626; /* Rojo más oscuro al pasar el ratón */
+        }
+        /* Estilo para mensajes de éxito/error */
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            display: none; /* Oculto por defecto */
+        }
+        .message-success {
+            background-color: #d1fae5; /* Verde claro */
+            color: #065f46; /* Verde oscuro */
+        }
+        .message-error {
+            background-color: #fee2e2; /* Rojo claro */
+            color: #991b1b; /* Rojo oscuro */
+        }
+    </style>
 </head>
-<body>
-<h1>Estado de Conexión a la Base de Datos</h1>
+<body class="bg-gray-100 p-8 flex flex-col items-center min-h-screen">
+    <div class="container bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Gestión de Usuarios</h1>
 
- <div id="dbStatus" class="message" style="display: none;"></div>
+        <!-- Contenedor para mensajes de la aplicación -->
+        <div id="messageContainer" class="message-box"></div>
 
- <script>
-const dbStatusDiv = document.getElementById('dbStatus');
+        <!-- Sección de Registro de Usuarios -->
+        <div class="mb-10 p-6 bg-blue-50 rounded-xl shadow-md">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Registrar Nuevo Usuario</h2>
+            <form id="registrationForm" class="space-y-4">
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="apellido" class="block text-sm font-medium text-gray-700 mb-1">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="cedula" class="block text-sm font-medium text-gray-700 mb-1">Cédula:</label>
+                    <input type="text" id="cedula" name="cedula" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <button type="submit"
+                        class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105">
+                    Registrar
+                </button>
+            </form>
+        </div>
 
-        function showMessage(element, message, type) {
- element.textContent = message;
- element.className = `message ${type}`;
-element.style.display = 'block';
- }
+        <!-- Sección de Listado de Usuarios -->
+        <div class="p-6 bg-green-50 rounded-xl shadow-md">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Usuarios Registrados</h2>
+            <div id="usersList" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">Nombre</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellido</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cédula</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Los usuarios se cargarán aquí -->
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-gray-500">Cargando usuarios...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p id="noUsersMessage" class="text-center py-4 text-gray-500 hidden">No hay usuarios registrados.</p>
+            </div>
+        </div>
+    </div>
 
- async function checkDbConnection() {
- try {
- const response = await fetch('http://127.0.0.1:5000/check_db_connection');
- const result = await response.json();
+    <script>
+        // URL base de tu API Flask
+        const API_BASE_URL = 'http://127.0.0.1:5000'; // Asegúrate de que esta URL coincida con la de tu Flask app
 
- if (response.ok && result.status === 'success') {
- showMessage(dbStatusDiv, result.message, 'success');
- } else {
-showMessage(dbStatusDiv, result.message || 'Error desconocido al verificar la conexión a la BD.', 'error');
- }
-} catch (error) {
- console.error('Error al intentar conectar con el servidor para verificar la BD:', error);
- showMessage(dbStatusDiv, 'Error: El servidor backend no está disponible o hay un problema de red.', 'error');
- }
- }
+        const registrationForm = document.getElementById('registrationForm');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const noUsersMessage = document.getElementById('noUsersMessage');
+        const messageContainer = document.getElementById('messageContainer');
 
- window.onload = checkDbConnection;
- </script>
+        /**
+         * Muestra un mensaje en la interfaz de usuario.
+         * @param {string} message - El mensaje a mostrar.
+         * @param {string} type - El tipo de mensaje ('success' o 'error').
+         */
+        function showMessage(message, type) {
+            messageContainer.textContent = message;
+            messageContainer.className = 'message-box'; // Resetea clases
+            messageContainer.classList.add(`message-${type}`);
+            messageContainer.style.display = 'block';
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 5000); // Oculta el mensaje después de 5 segundos
+        }
+
+        /**
+         * Maneja el envío del formulario de registro de usuario.
+         * @param {Event} event - El evento de envío del formulario.
+         */
+        registrationForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Previene el envío por defecto del formulario
+
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const cedula = document.getElementById('cedula').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nombre, apellido, cedula }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(result.mensaje, 'success');
+                    registrationForm.reset(); // Limpia el formulario
+                    fetchUsers(); // Vuelve a cargar la lista de usuarios
+                } else {
+                    showMessage(result.error || 'Error al registrar usuario.', 'error');
+                }
+            } catch (error) {
+                console.error('Error al conectar con la API de registro:', error);
+                showMessage('Error de conexión con el servidor. Asegúrate de que la API está en ejecución.', 'error');
+            }
+        });
+
+        /**
+         * Carga y muestra la lista de usuarios registrados.
+         */
+        async function fetchUsers() {
+            usersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Cargando usuarios...</td></tr>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`);
+                const users = await response.json();
+
+                usersTableBody.innerHTML = ''; // Limpia la tabla antes de añadir nuevos datos
+                if (users.length === 0) {
+                    noUsersMessage.classList.remove('hidden');
+                    usersTableBody.innerHTML = ''; // Asegurarse de que la tabla está vacía
+                } else {
+                    noUsersMessage.classList.add('hidden');
+                    users.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-gray-100'; // Efecto hover para las filas
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${user.nombre_usuario}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${user.apellido_usuario}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${user.cedula_usuario}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                <button onclick="deleteUser('${user.cedula_usuario}')"
+                                        class="delete-btn">
+                                    Eliminar
+                                </button>
+                            </td>
+                        `;
+                        usersTableBody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al conectar con la API para obtener usuarios:', error);
+                usersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Error al cargar usuarios.</td></tr>';
+                showMessage('Error al cargar la lista de usuarios. Asegúrate de que la API está en ejecución.', 'error');
+            }
+        }
+
+        /**
+         * Elimina un usuario por su cédula.
+         * @param {string} cedula - La cédula del usuario a eliminar.
+         */
+        async function deleteUser(cedula) {
+            // Mostrar un cuadro de diálogo de confirmación personalizado en lugar de alert/confirm
+            if (confirm(`¿Estás seguro de que quieres eliminar al usuario con cédula ${cedula}?`)) { // Usando confirm() para simplificar, pero se recomienda un modal personalizado
+                try {
+                    const response = await fetch(`${API_BASE_URL}/users/${cedula}`, {
+                        method: 'DELETE',
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        showMessage(result.mensaje, 'success');
+                        fetchUsers(); // Vuelve a cargar la lista de usuarios
+                    } else {
+                        showMessage(result.error || 'Error al eliminar usuario.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error al conectar con la API de eliminación:', error);
+                    showMessage('Error de conexión con el servidor al intentar eliminar.', 'error');
+                }
+            }
+        }
+
+        // Cargar usuarios al cargar la página
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+    </script>
 </body>
 </html>
