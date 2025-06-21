@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reservar Cancha</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      padding: 2rem;
+      color: #333;
+    }
+
+    a.back-button {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #6c757d;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: background-color 0.3s;
+    }
+
+    a.back-button:hover {
+      background-color: #5a6268;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .left-panel {
+      flex: 1 1 50%;
+    }
+
+    .carousel {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .carousel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .carousel img.active {
+      display: block;
+    }
+
+    .cancha-info {
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .right-panel {
+      flex: 1 1 40%;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+    }
+
+    form input,
+    form select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    form button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background-color 0.3s;
+    }
+
+    form button:hover {
+      background-color: #0056b3;
+    }
+
+    .factura {
+      margin-top: 1rem;
+      background-color: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .factura p {
+      margin-bottom: 0.4rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .right-panel,
+      .left-panel {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="back-button">← Regresar</a>
+
+  <div class="container">
+    <!-- IZQUIERDA: Carrusel + info -->
+    <div class="left-panel">
+      <div class="carousel">
+        <img src="https://via.placeholder.com/600x300.png?text=Cancha+1" class="active">
+        <img src="https://via.placeholder.com/600x300.png?text=Cancha+2">
+        <img src="https://via.placeholder.com/600x300.png?text=Cancha+3">
+      </div>
+      <div class="cancha-info">
+        <h3>Cancha Fútbol 1</h3>
+        <p>Ubicación: Ciudad Deportiva</p>
+        <p>Superficie: Césped sintético</p>
+        <p>Precio por hora: <strong>$30</strong></p>
+      </div>
+    </div>
+
+    <!-- DERECHA: Formulario -->
+    <div class="right-panel">
+      <h2>Reservar</h2>
+      <form id="reserva-form">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required>
+
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellido" required>
+
+        <label for="cedula">Cédula:</label>
+        <input type="text" id="cedula" required>
+
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" required>
+
+        <label for="horaInicio">Hora de inicio:</label>
+        <input type="time" id="horaInicio" required>
+
+        <label for="horaFin">Hora de fin:</label>
+        <input type="time" id="horaFin" required>
+
+        <button type="submit">Enviar</button>
+
+        <div class="factura" id="factura" style="display: none;">
+          <h4>Factura</h4>
+          <p><strong>Nombre:</strong> <span id="fact-nombre"></span></p>
+          <p><strong>Fecha:</strong> <span id="fact-fecha"></span></p>
+          <p><strong>Horario:</strong> <span id="fact-horario"></span></p>
+          <p><strong>Duración:</strong> <span id="fact-horas"></span> horas</p>
+          <p><strong>Total:</strong> $<span id="fact-total"></span></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const precioPorHora = 30;
+    const fechaInput = document.getElementById("fecha");
+    const hoy = new Date();
+    fechaInput.min = hoy.toISOString().split("T")[0];
+
+    const images = document.querySelectorAll(".carousel img");
+    let current = 0;
+    setInterval(() => {
+      images[current].classList.remove("active");
+      current = (current + 1) % images.length;
+      images[current].classList.add("active");
+    }, 3000);
+
+    const form = document.getElementById("reserva-form");
+    const facturaDiv = document.getElementById("factura");
+
+    const campos = ["nombre", "apellido", "fecha", "horaInicio", "horaFin"];
+    campos.forEach(id => {
+      document.getElementById(id).addEventListener("input", actualizarFactura);
+    });
+
+    function actualizarFactura() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const apellido = document.getElementById("apellido").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      const horaInicio = document.getElementById("horaInicio").value;
+      const horaFin = document.getElementById("horaFin").value;
+
+      if (!nombre || !apellido || !fecha || !horaInicio || !horaFin) {
+        facturaDiv.style.display = "none";
+        return;
+      }
+
+      const inicio = new Date(`${fecha}T${horaInicio}:00`);
+      const fin = new Date(`${fecha}T${horaFin}:00`);
+      const ahora = new Date();
+
+      const fechaObj = new Date(fecha);
+      fechaObj.setHours(0, 0, 0, 0);
+      const hoyObj = new Date();
+      hoyObj.setHours(0, 0, 0, 0);
+
+      if (fechaObj < hoyObj) return (facturaDiv.style.display = "none");
+      if (fechaObj.getTime() === hoyObj.getTime() && inicio <= ahora) return (facturaDiv.style.display = "none");
+      if (fin <= inicio) return (facturaDiv.style.display = "none");
+
+      const horas = (fin - inicio) / (1000 * 60 * 60);
+      const total = horas * precioPorHora;
+
+      document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
+      document.getElementById("fact-fecha").textContent = fecha;
+      document.getElementById("fact-horario").textContent = `De ${horaInicio} a ${horaFin}`;
+      document.getElementById("fact-horas").textContent = horas.toFixed(2);
+      document.getElementById("fact-total").textContent = total.toFixed(2);
+      facturaDiv.style.display = "block";
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("Reserva enviada con éxito. Revisa la factura.");
+    });
+  </script>
+
+</body>
+</html>
