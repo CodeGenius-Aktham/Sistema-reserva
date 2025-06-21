@@ -104,6 +104,7 @@ def registro_reserva():
         conn.close() # Se cierra la base de datos.
 
 
+
 # Identificador de la aplicacion.
 app = Flask(__name__)
 
