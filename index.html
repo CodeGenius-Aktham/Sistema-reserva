@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas Litin - Consola</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { display: flex; gap: 30px; }
+        .form-section { border: 1px solid #ccc; padding: 20px; border-radius: 8px; width: 45%; }
+        h2 { color: #333; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="date"], input[type="time"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Bienvenido al Sistema de Reservas de la Unidad Educativa Litin</h1>
+    <p>Gestionado por **Abel Ghanam**, CEO de **CodeGenius**.</p>
+
+    <div class="container">
+        <div class="form-section">
+            <h2>Registrar Usuario</h2>
+            <form id="registerForm">
+                <label for="regNombre">Nombre:</label>
+                <input type="text" id="regNombre" name="nombre" required>
+
+                <label for="regApellido">Apellido:</label>
+                <input type="text" id="regApellido" name="apellido" required>
+
+                <label for="regCedula">Cédula:</label>
+                <input type="text" id="regCedula" name="cedula" required>
+
+                <button type="submit">Registrar</button>
+            </form>
+        </div>
+
+        <div class="form-section">
+            <h2>Hacer una Reserva</h2>
+            <form id="reservationForm">
+                <label for="resFecha">Fecha (DD/MM/YYYY):</label>
+                <input type="text" id="resFecha" name="fecha" placeholder="Ej: 21/06/2025" required>
+
+                <label for="resHoraInicio">Hora de Inicio (HH:MM):</label>
+                <input type="text" id="resHoraInicio" name="hora" placeholder="Ej: 10:00" required>
+
+                <label for="resHoraTermino">Hora de Término (HH:MM):</label>
+                <input type="text" id="resHoraTermino" name="termino" placeholder="Ej: 11:00" required>
+
+                <label for="resEstado">Estado de la Reserva:</label>
+                <input type="text" id="resEstado" name="estado" value="Pendiente" required>
+
+                <button type="submit">Reservar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const reservationForm = document.getElementById('reservationForm');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(registerForm);
+            const data = Object.fromEntries(formData.entries());
+
+            console.log('Enviando datos de registro:', data); // Muestra los datos que se envían
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/register', { // Asegúrate de que la URL sea correcta
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('Respuesta del servidor (Registro):', result); // Muestra la respuesta completa
+
+                if (response.ok) {
+                    console.log('Registro exitoso:', result.mensaje);
+                    registerForm.reset(); // Limpiar formulario al éxito
+                } else {
+                    console.error('Error en el registro:', result.error || 'Error desconocido.');
+                }
+            } catch (error) {
+                console.error('Error de conexión al registrar usuario:', error);
+            }
+        });
+
+        reservationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(reservationForm);
+            const data = Object.fromEntries(formData.entries());
+
+            console.log('Enviando datos de reserva:', data); // Muestra los datos que se envían
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/reservation', { // Asegúrate de que la URL sea correcta
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('Respuesta del servidor (Reserva):', result); // Muestra la respuesta completa
+
+                if (response.ok) {
+                    console.log('Reserva exitosa:', result.mensaje);
+                    reservationForm.reset(); // Limpiar formulario al éxito
+                    document.getElementById('resEstado').value = 'Pendiente'; // Restablecer estado por defecto
+                } else {
+                    console.error('Error en la reserva:', result.error || 'Error desconocido.');
+                }
+            } catch (error) {
+                console.error('Error de conexión al hacer la reserva:', error);
+            }
+        });
+    </script>
+</body>
+</html>
