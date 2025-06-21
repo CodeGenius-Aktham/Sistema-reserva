@@ -1,321 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reservas - Unidad Educativa Litin</title>
-    <style>
-        /* Estilos generales del cuerpo de la página */
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            background-color: #f4f7f6; /* Fondo suave */
-            color: #333; /* Color de texto principal */
-        }
+ <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado de Conexión a la Base de Datos - Unidad Educativa Litin</title>
+  <style>
+  /* Estilos generales del cuerpo de la página */
+  body { 
+ font-family: Arial, sans-serif; 
+ margin: 20px; 
+  background-color: #f4f7f6; /* Fondo suave */
+  color: #333; /* Color de texto principal */
+ display: flex;
+ justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Altura mínima para centrar verticalmente */
+  flex-direction: column;
+  }
+/* Estilos para el título principal */
+ h1 {
+ color: #2c3e50; /* Azul oscuro */
+ text-align: center;
+ margin-bottom: 30px;
+ }
 
-        /* Estilos para el título principal */
-        h1 {
-            color: #2c3e50; /* Azul oscuro */
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        /* Estilos para el párrafo descriptivo */
-        p {
-            text-align: center;
-            font-size: 1.1em;
-            color: #555; /* Gris oscuro */
-            margin-bottom: 40px;
-        }
-
-        /* Contenedor principal de los formularios (usa Flexbox para el diseño) */
-        .container { 
-            display: flex; 
-            gap: 30px; /* Espacio entre los formularios */
-            justify-content: center; /* Centra los formularios horizontalmente */
-            flex-wrap: wrap; /* Permite que los formularios se apilen en pantallas más pequeñas */
-        }
-
-        /* Sección de cada formulario (registro y reserva) */
-        .form-section { 
-            background-color: #ffffff; /* Fondo blanco para el formulario */
-            border: 1px solid #e0e0e0; /* Borde ligero */
-            padding: 30px; /* Relleno interno */
-            border-radius: 10px; /* Esquinas redondeadas */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            width: 45%; /* Ancho base del formulario */
-            max-width: 500px; /* Ancho máximo para que no se extienda demasiado */
-            min-width: 300px; /* Ancho mínimo para mantener la legibilidad */
-        }
-
-        /* Estilos para los subtítulos de los formularios */
-        h2 { 
-            color: #007bff; /* Azul brillante */
-            text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #007bff; /* Línea decorativa */
-            padding-bottom: 10px;
-        }
-
-        /* Estilos para las etiquetas de los campos */
-        label { 
-            display: block; /* Cada etiqueta en su propia línea */
-            margin-bottom: 8px; 
-            font-weight: bold; /* Negrita */
-            color: #444; /* Gris oscuro */
-        }
-        
-        /* Estilos para los campos de entrada de texto, fecha, hora y select */
-        input[type="text"], 
-        input[type="date"], 
-        input[type="time"],
-        select {
-            width: calc(100% - 22px); /* Ocupa casi todo el ancho disponible menos el padding */
-            padding: 10px; /* Relleno interno */
-            margin-bottom: 20px; /* Espacio inferior */
-            border: 1px solid #ccc; /* Borde estándar */
-            border-radius: 5px; /* Esquinas redondeadas */
-            box-sizing: border-box; /* Asegura que padding y borde no aumenten el ancho total */
-            font-size: 1em; /* Tamaño de fuente normal */
-        }
-        
-        button {
-            background-color: #28a745; /* Verde para acciones */
-            color: white; /* Texto blanco */
-            padding: 12px 20px; /* Relleno del botón */
-            border: none; /* Sin borde */
-            border-radius: 5px; /* Esquinas redondeadas */
-            cursor: pointer; /* Cambia el cursor al pasar por encima */
-            font-size: 1.1em; /* Tamaño de fuente más grande */
-            width: 100%; /* Ocupa todo el ancho disponible */
-            transition: background-color 0.3s ease; /* Transición suave en el color de fondo */
-        }
-        button:hover { 
-            background-color: #218838; /* Verde más oscuro al pasar el ratón */
-        }
-
-        /* Estilos para los mensajes de feedback (éxito/error) */
-        .message {
-            margin-top: 15px; /* Espacio superior */
-            padding: 10px; /* Relleno interno */
-            border-radius: 5px; /* Esquinas redondeadas */
-            text-align: center; /* Texto centrado */
-            font-weight: bold; /* Negrita */
-        }
-        /* Estilo para mensajes de éxito */
-        .message.success {
-            background-color: #d4edda; /* Fondo verde claro */
-            color: #155724; /* Texto verde oscuro */
-            border-color: #c3e6cb; /* Borde verde claro */
-        }
-        /* Estilo para mensajes de error */
-        .message.error {
-            background-color: #f8d7da; /* Fondo rojo claro */
-            color: #721c24; /* Texto rojo oscuro */
-            border-color: #f5c6cb; /* Borde rojo claro */
-        }
-    </style>
+ /* Estilos para los mensajes de feedback (éxito/error) */
+.message {
+ margin-top: 15px; /* Espacio superior */
+padding: 15px 25px; /* Relleno interno */
+border-radius: 8px; /* Esquinas redondeadas */
+text-align: center; /* Texto centrado */
+ font-weight: bold; /* Negrita */
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Sombra suave */
+ min-width: 300px;
+ max-width: 500px;
+}
+ .message.success {
+ background-color: #d4edda; /* Fondo verde claro */
+ color: #155724; /* Texto verde oscuro */
+ border: 1px solid #c3e6cb; /* Borde verde claro */
+ }
+ /* Estilo para mensajes de error */
+ .message.error {
+ background-color: #f8d7da; /* Fondo rojo claro */
+ color: #721c24; /* Texto rojo oscuro */
+ border: 1px solid #f5c6cb; /* Borde rojo claro */
+ }
+</style>
 </head>
 <body>
-    <!-- Título principal y descripción de la aplicación -->
-    <h1>Sistema de Reservas</h1>
-    <p>Gestiona usuarios y reservas de manera eficiente para la Unidad Educativa Litin.</p>
+<h1>Estado de Conexión a la Base de Datos</h1>
 
-    <!-- Etiqueta para el estado de la conexión a la base de datos -->
-    <!-- Se mostrará aquí el mensaje de si la base de datos se conectó o no -->
-    <div id="dbStatus" class="message" style="display: none; margin: 0 auto 30px auto; max-width: 600px;"></div>
+ <div id="dbStatus" class="message" style="display: none;"></div>
 
-    <!-- Contenedor que agrupa los dos formularios -->
-    <div class="container">
-        <!-- Sección del formulario de registro de usuario -->
-        <div class="form-section">
-            <h2>Registrar Usuario</h2>
-            <form id="registerForm">
-                <label for="regNombre">Nombre:</label>
-                <input type="text" id="regNombre" name="nombre" placeholder="Ingresa el nombre" required>
-                
-                <label for="regApellido">Apellido:</label>
-                <input type="text" id="regApellido" name="apellido" placeholder="Ingresa el apellido" required>
-                
-                <label for="regCedula">Cédula:</label>
-                <input type="text" id="regCedula" name="cedula" placeholder="Ingresa la cédula" required>
-                
-                <button type="submit">Registrar Usuario</button>
-                <!-- Div para mostrar mensajes de éxito o error en el registro -->
-                <div id="registerMessage" class="message" style="display: none;"></div>
-            </form>
-        </div>
+ <script>
+const dbStatusDiv = document.getElementById('dbStatus');
 
-        <!-- Sección del formulario de reservas -->
-        <div class="form-section">
-            <h2>Hacer una Reserva</h2>
-            <form id="reservationForm">
-                <label for="resFecha">Fecha:</label>
-                <!-- Input de tipo 'date' para un selector de calendario integrado -->
-                <input type="date" id="resFecha" name="fecha" required>
+        function showMessage(element, message, type) {
+ element.textContent = message;
+ element.className = `message ${type}`;
+element.style.display = 'block';
+ }
 
-                <label for="resHoraInicio">Hora de Inicio:</label>
-                <!-- Input de tipo 'time' para un selector de hora integrado -->
-                <input type="time" id="resHoraInicio" name="hora" required>
+ async function checkDbConnection() {
+ try {
+ const response = await fetch('http://127.0.0.1:5000/check_db_connection');
+ const result = await response.json();
 
-                <label for="resHoraTermino">Hora de Término:</label>
-                <!-- Input de tipo 'time' para un selector de hora integrado -->
-                <input type="time" id="resHoraTermino" name="termino" required>
+ if (response.ok && result.status === 'success') {
+ showMessage(dbStatusDiv, result.message, 'success');
+ } else {
+showMessage(dbStatusDiv, result.message || 'Error desconocido al verificar la conexión a la BD.', 'error');
+ }
+} catch (error) {
+ console.error('Error al intentar conectar con el servidor para verificar la BD:', error);
+ showMessage(dbStatusDiv, 'Error: El servidor backend no está disponible o hay un problema de red.', 'error');
+ }
+ }
 
-                <label for="resEstado">Estado de la Reserva:</label>
-                <!-- Select para opciones predefinidas de estado -->
-                <select id="resEstado" name="estado" required>
-                    <option value="Pendiente" selected>Pendiente</option>
-                    <option value="Confirmada">Confirmada</option>
-                    <option value="Cancelada">Cancelada</option>
-                </select>
-
-                <button type="submit">Reservar</button>
-                <!-- Div para mostrar mensajes de éxito o error en la reserva -->
-                <div id="reservationMessage" class="message" style="display: none;"></div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Obtenemos las referencias a los formularios y los divs de mensajes
-        const registerForm = document.getElementById('registerForm');
-        const reservationForm = document.getElementById('reservationForm');
-        const registerMessageDiv = document.getElementById('registerMessage');
-        const reservationMessageDiv = document.getElementById('reservationMessage');
-        const dbStatusDiv = document.getElementById('dbStatus'); // Nuevo: Referencia al div de estado de la BD
-
-        /**
-         * Muestra un mensaje de feedback en la interfaz de usuario.
-         * @param {HTMLElement} element - El elemento DOM donde se mostrará el mensaje (e.g., registerMessageDiv).
-         * @param {string} message - El texto del mensaje a mostrar.
-         * @param {string} type - El tipo de mensaje ('success' o 'error') para aplicar estilos CSS.
-         */
-        function showMessage(element, message, type) {
-            element.textContent = message; // Establece el texto del mensaje
-            element.className = `message ${type}`; // Aplica las clases CSS para el estilo
-            element.style.display = 'block'; // Hace visible el mensaje
-            // Oculta el mensaje después de 5 segundos
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 5000); 
-        }
-
-        /**
-         * Verifica el estado de la conexión a la base de datos a través del backend Flask.
-         */
-        async function checkDbConnection() {
-            try {
-                // Realiza una petición GET al nuevo endpoint de Flask para verificar la conexión
-                // Si ves "Failed to fetch" en la consola, generalmente significa que tu servidor Flask
-                // no está corriendo en http://127.0.0.1:5000, o hay un firewall bloqueando la conexión.
-                // Asegúrate de que tu script Python (app.py) esté ejecutándose en una terminal.
-                const response = await fetch('http://127.0.0.1:5000/check_db_connection');
-                const result = await response.json();
-
-                if (response.ok && result.status === 'success') {
-                    // Si la conexión fue exitosa (status 200 y mensaje de éxito del backend)
-                    showMessage(dbStatusDiv, result.message, 'success');
-                } else {
-                    // Si hubo un error en la conexión (status diferente de 200 o mensaje de error del backend)
-                    showMessage(dbStatusDiv, result.message || 'Error desconocido al verificar la conexión a la BD.', 'error');
-                }
-            } catch (error) {
-                // Si hay un error de red (el servidor Flask no está corriendo, problemas de CORS, etc.)
-                console.error('Error al intentar conectar con el servidor para verificar la BD:', error);
-                showMessage(dbStatusDiv, 'Error: El servidor backend no está disponible o hay un problema de red.', 'error');
-            }
-        }
-
-        // --- Lógica para el formulario de Registro de Usuario ---
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Evita el envío por defecto del formulario (recarga de página)
-            
-            // Recopila los datos del formulario
-            const formData = new FormData(registerForm);
-            const data = Object.fromEntries(formData.entries());
-
-            console.log('Enviando datos de registro:', data); // Para depuración en la consola
-
-            try {
-                // Envía los datos al servidor Flask
-                const response = await fetch('http://127.0.0.1:5000/register', {
-                    method: 'POST', // Método POST
-                    headers: {
-                        'Content-Type': 'application/json' // Indica que el cuerpo es JSON
-                    },
-                    body: JSON.stringify(data) // Convierte el objeto de datos a JSON string
-                });
-
-                // Parsea la respuesta del servidor como JSON
-                const result = await response.json();
-                console.log('Respuesta del servidor (Registro):', result); // Para depuración
-
-                if (response.ok) { // Si la respuesta HTTP es exitosa (código 2xx)
-                    console.log('Registro exitoso:', result.mensaje);
-                    showMessage(registerMessageDiv, result.mensaje, 'success'); // Muestra mensaje de éxito
-                    registerForm.reset(); // Limpia los campos del formulario
-                } else { // Si la respuesta HTTP indica un error
-                    const errorMessage = result.error || 'Error desconocido en el registro.';
-                    console.error('Error en el registro:', errorMessage);
-                    showMessage(registerMessageDiv, errorMessage, 'error'); // Muestra mensaje de error
-                }
-            } catch (error) { // Captura errores de conexión o de red
-                console.error('Error de conexión al registrar usuario:', error);
-                showMessage(registerMessageDiv, 'Error de conexión: No se pudo conectar con el servidor.', 'error');
-            }
-        });
-
-        // --- Lógica para el formulario de Reserva ---
-        reservationForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Evita el envío por defecto del formulario
-            
-            // Recopila los datos del formulario
-            const formData = new FormData(reservationForm);
-            const data = Object.fromEntries(formData.entries());
-
-            // IMPORTANTE: Convierte la fecha del formato ISO (YYYY-MM-DD) del input type="date"
-            // al formato DD/MM/YYYY que espera el backend Flask
-            if (data.fecha) {
-                const [year, month, day] = data.fecha.split('-');
-                data.fecha = `${day}/${month}/${year}`;
-            }
-
-            console.log('Enviando datos de reserva:', data); // Para depuración
-
-            try {
-                // Envía los datos al servidor Flask
-                const response = await fetch('http://127.0.0.1:5000/reservation', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                // Parsea la respuesta del servidor como JSON
-                const result = await response.json();
-                console.log('Respuesta del servidor (Reserva):', result); // Para depuración
-
-                if (response.ok) { // Si la respuesta HTTP es exitosa
-                    console.log('Reserva exitosa:', result.mensaje);
-                    showMessage(reservationMessageDiv, result.mensaje, 'success'); // Muestra mensaje de éxito
-                    reservationForm.reset(); // Limpia los campos del formulario
-                    // Restablece el valor del select de estado a "Pendiente" después de resetear
-                    document.getElementById('resEstado').value = 'Pendiente'; 
-                } else { // Si la respuesta HTTP indica un error
-                    const errorMessage = result.error || 'Error desconocido en la reserva.';
-                    console.error('Error en la reserva:', errorMessage);
-                    showMessage(reservationMessageDiv, errorMessage, 'error'); // Muestra mensaje de error
-                }
-            } catch (error) { // Captura errores de conexión o de red
-                console.error('Error de conexión al hacer la reserva:', error);
-                showMessage(reservationMessageDiv, 'Error de conexión: No se pudo conectar con el servidor.', 'error');
-            }
-        });
-
-        // Llama a la función para verificar la conexión a la base de datos cuando la página se carga
-        window.onload = checkDbConnection;
-    </script>
+ window.onload = checkDbConnection;
+ </script>
 </body>
 </html>
