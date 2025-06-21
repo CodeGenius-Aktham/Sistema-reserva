@@ -7,10 +7,10 @@ app = Flask(__name__)
 
 # --- Configuración de la base de datos MySQL ---
 DB_CONFIG = {
-    'host': 'localhost',      # Generalmente 'localhost'
-    'user': 'root',           # Tu usuario de MySQL
-    'password': '',           # Tu contraseña de MySQL
-    'database': 'usuarios-registro' # EL NOMBRE EXACTO DE TU DB EN phpMyAdmin
+    'host': 'localhost',
+    'user': 'root',
+    'password': '',
+    'database': 'usuarios-registro' # <--- ¡Cambiado a 'usuarios-registro'!
 }
 
 # Conexion a la base de datos de usuario y reservas.
