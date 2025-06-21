@@ -3,69 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reservas </title>
+    <title>Sistema de Reservas - Unidad Educativa Litin</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { display: flex; gap: 30px; }
-        .form-section { border: 1px solid #ccc; padding: 20px; border-radius: 8px; width: 45%; }
-        h2 { color: #333; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="date"], input[type="time"] {
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        p {
+            text-align: center;
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 40px;
+        }
+
+        .container { 
+            display: flex; 
+            gap: 30px; 
+            justify-content: center;
+            flex-wrap: wrap; /* Permite que los formularios se apilen en pantallas pequeñas */
+        }
+
+        .form-section { 
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 45%; 
+            max-width: 500px; /* Ancho máximo para formularios */
+            min-width: 300px; /* Ancho mínimo para formularios */
+        }
+
+        h2 { 
+            color: #007bff; 
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: bold; 
+            color: #444;
+        }
+        
+        input[type="text"], 
+        input[type="date"], 
+        input[type="time"],
+        select {
             width: calc(100% - 22px);
             padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+            font-size: 1em;
         }
+        
         button {
-            background-color: #007bff;
+            background-color: #28a745; /* Verde para acciones */
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1.1em;
+            width: 100%;
+            transition: background-color 0.3s ease;
         }
-        button:hover { background-color: #0056b3; }
+        button:hover { 
+            background-color: #218838; 
+        }
+
+        /* Mensajes de feedback */
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
     </style>
 </head>
 <body>
-    <h1></h1>
-    <p></p>
+    <h1>Sistema de Reservas</h1>
+    <p>Gestiona usuarios y reservas de manera eficiente para la Unidad Educativa Litin.</p>
 
     <div class="container">
         <div class="form-section">
             <h2>Registrar Usuario</h2>
             <form id="registerForm">
                 <label for="regNombre">Nombre:</label>
-                <input type="text" id="regNombre" name="nombre" required>
-
+                <input type="text" id="regNombre" name="nombre" placeholder="Ingresa el nombre" required>
+                
                 <label for="regApellido">Apellido:</label>
-                <input type="text" id="regApellido" name="apellido" required>
-
+                <input type="text" id="regApellido" name="apellido" placeholder="Ingresa el apellido" required>
+                
                 <label for="regCedula">Cédula:</label>
-                <input type="text" id="regCedula" name="cedula" required>
-
-                <button type="submit">Registrar</button>
+                <input type="text" id="regCedula" name="cedula" placeholder="Ingresa la cédula" required>
+                
+                <button type="submit">Registrar Usuario</button>
+                <div id="registerMessage" class="message" style="display: none;"></div>
             </form>
         </div>
 
         <div class="form-section">
             <h2>Hacer una Reserva</h2>
             <form id="reservationForm">
-                <label for="resFecha">Fecha (DD/MM/YYYY):</label>
-                <input type="text" id="resFecha" name="fecha" placeholder="Ej: 21/06/2025" required>
+                <label for="resFecha">Fecha:</label>
+                <input type="date" id="resFecha" name="fecha" required>
 
-                <label for="resHoraInicio">Hora de Inicio (HH:MM):</label>
-                <input type="text" id="resHoraInicio" name="hora" placeholder="Ej: 10:00" required>
+                <label for="resHoraInicio">Hora de Inicio:</label>
+                <input type="time" id="resHoraInicio" name="hora" required>
 
-                <label for="resHoraTermino">Hora de Término (HH:MM):</label>
-                <input type="text" id="resHoraTermino" name="termino" placeholder="Ej: 11:00" required>
+                <label for="resHoraTermino">Hora de Término:</label>
+                <input type="time" id="resHoraTermino" name="termino" required>
 
                 <label for="resEstado">Estado de la Reserva:</label>
-                <input type="text" id="resEstado" name="estado" value="Pendiente" required>
+                <select id="resEstado" name="estado" required>
+                    <option value="Pendiente" selected>Pendiente</option>
+                    <option value="Confirmada">Confirmada</option>
+                    <option value="Cancelada">Cancelada</option>
+                </select>
 
                 <button type="submit">Reservar</button>
+                <div id="reservationMessage" class="message" style="display: none;"></div>
             </form>
         </div>
     </div>
@@ -73,16 +155,28 @@
     <script>
         const registerForm = document.getElementById('registerForm');
         const reservationForm = document.getElementById('reservationForm');
+        const registerMessageDiv = document.getElementById('registerMessage');
+        const reservationMessageDiv = document.getElementById('reservationMessage');
+
+        // Función para mostrar mensajes de feedback
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000); // El mensaje desaparece después de 5 segundos
+        }
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(registerForm);
             const data = Object.fromEntries(formData.entries());
 
-            console.log('Enviando datos de registro:', data); // Muestra los datos que se envían
+            console.log('Enviando datos de registro:', data);
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/register', { // Asegúrate de que la URL sea correcta
+                const response = await fetch('http://127.0.0.1:5000/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -91,16 +185,20 @@
                 });
 
                 const result = await response.json();
-                console.log('Respuesta del servidor (Registro):', result); // Muestra la respuesta completa
+                console.log('Respuesta del servidor (Registro):', result);
 
                 if (response.ok) {
                     console.log('Registro exitoso:', result.mensaje);
-                    registerForm.reset(); // Limpiar formulario al éxito
+                    showMessage(registerMessageDiv, result.mensaje, 'success');
+                    registerForm.reset();
                 } else {
-                    console.error('Error en el registro:', result.error || 'Error desconocido.');
+                    const errorMessage = result.error || 'Error desconocido en el registro.';
+                    console.error('Error en el registro:', errorMessage);
+                    showMessage(registerMessageDiv, errorMessage, 'error');
                 }
             } catch (error) {
                 console.error('Error de conexión al registrar usuario:', error);
+                showMessage(registerMessageDiv, 'Error de conexión: No se pudo conectar con el servidor.', 'error');
             }
         });
 
@@ -109,10 +207,16 @@
             const formData = new FormData(reservationForm);
             const data = Object.fromEntries(formData.entries());
 
-            console.log('Enviando datos de reserva:', data); // Muestra los datos que se envían
+            // Convertir fecha a DD/MM/YYYY si el input type="date" está en YYYY-MM-DD
+            if (data.fecha) {
+                const [year, month, day] = data.fecha.split('-');
+                data.fecha = `${day}/${month}/${year}`;
+            }
+
+            console.log('Enviando datos de reserva:', data);
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/reservation', { // Asegúrate de que la URL sea correcta
+                const response = await fetch('http://127.0.0.1:5000/reservation', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -121,17 +225,21 @@
                 });
 
                 const result = await response.json();
-                console.log('Respuesta del servidor (Reserva):', result); // Muestra la respuesta completa
+                console.log('Respuesta del servidor (Reserva):', result);
 
                 if (response.ok) {
                     console.log('Reserva exitosa:', result.mensaje);
-                    reservationForm.reset(); // Limpiar formulario al éxito
+                    showMessage(reservationMessageDiv, result.mensaje, 'success');
+                    reservationForm.reset();
                     document.getElementById('resEstado').value = 'Pendiente'; // Restablecer estado por defecto
                 } else {
-                    console.error('Error en la reserva:', result.error || 'Error desconocido.');
+                    const errorMessage = result.error || 'Error desconocido en la reserva.';
+                    console.error('Error en la reserva:', errorMessage);
+                    showMessage(reservationMessageDiv, errorMessage, 'error');
                 }
             } catch (error) {
                 console.error('Error de conexión al hacer la reserva:', error);
+                showMessage(reservationMessageDiv, 'Error de conexión: No se pudo conectar con el servidor.', 'error');
             }
         });
     </script>
