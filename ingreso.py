@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Configuración de la base de datos
 DB_CONFIG = {
-    'host': 'http://localhost/phpmyadmin/index.php?route=/database/structure&db=usuarios-registro', # O la IP de tu servidor de base de datos
+    'host': 'jdbc:mysql://localhost:3306/usuarios-registro', # O la IP de tu servidor de base de datos
     'user': 'root',      # Tu usuario de MySQL (cambia si usas otro)
     'password': '',      # Tu contraseña de MySQL (cambia si tienes una)
     'database': 'usuarios-registro' # Asegúrate de que este sea el nombre correcto de tu DB
