@@ -57,6 +57,9 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       overflow: hidden;
       transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .card:hover {
@@ -71,6 +74,10 @@
 
     .card-content {
       padding: 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .card-content h3 {
@@ -92,6 +99,7 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      align-self: flex-start;
     }
 
     .card-content button:hover {
@@ -124,108 +132,111 @@
 
   <!-- Fútbol Section -->
   <div id="futbol" class="content-section active">
-    <div class="grid-container">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Fútbol+1">
-        <div class="card-content">
-          <h3>Cancha Fútbol 1</h3>
-          <p>Precio: $30/hora</p>
-         <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Fútbol+2">
-        <div class="card-content">
-          <h3>Cancha Fútbol 2</h3>
-          <p>Precio: $28/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Fútbol+3">
-        <div class="card-content">
-          <h3>Cancha Fútbol 3</h3>
-          <p>Precio: $35/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Fútbol+4">
-        <div class="card-content">
-          <h3>Cancha Fútbol 4</h3>
-          <p>Precio: $25/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Fútbol+5">
-        <div class="card-content">
-          <h3>Cancha Fútbol 5</h3>
-          <p>Precio: $30/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
+    <div class="grid-container" id="futbol-list">
+      <!-- Aquí las canchas de fútbol se generarán con JS -->
     </div>
   </div>
 
   <!-- Pádel Section -->
   <div id="padel" class="content-section">
-    <div class="grid-container">
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Padel+1">
-        <div class="card-content">
-          <h3>Cancha Pádel 1</h3>
-          <p>Precio: $20/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Padel+2">
-        <div class="card-content">
-          <h3>Cancha Pádel 2</h3>
-          <p>Precio: $22/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Padel+3">
-        <div class="card-content">
-          <h3>Cancha Pádel 3</h3>
-          <p>Precio: $24/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Padel+4">
-        <div class="card-content">
-          <h3>Cancha Pádel 4</h3>
-          <p>Precio: $19/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://via.placeholder.com/300x150.png?text=Padel+5">
-        <div class="card-content">
-          <h3>Cancha Pádel 5</h3>
-          <p>Precio: $21/hora</p>
-          <button onclick="window.location.href='reserva.html'">Reservar</button>
-
-        </div>
-      </div>
+    <div class="grid-container" id="padel-list">
+      <!-- Aquí las canchas de pádel se generarán con JS -->
     </div>
   </div>
 
-  <!-- JS para Tabs -->
+  <!-- JS para Tabs y generación dinámica de canchas -->
   <script>
+    // Datos de canchas con varias imágenes para cada una
+    const futbolCanchas = [
+      {
+        nombre: "Cancha Fútbol 1",
+        precio: 29,
+        ubicacion: "Ciudad Deportiva",
+        superficie: "Césped sintético",
+        imagenes: [
+          "/imagenes/OIP.webp",
+          "/imagenes/OIP2.webp",
+          "/imagenes/OIP3.webp"
+        ]
+      },
+      {
+        nombre: "Cancha Fútbol 2",
+        precio: 230,
+        ubicacion: "Complejo Norte",
+        superficie: "Pasto natural",
+        imagenes: [
+          "/imagenes/download.webp",
+          "/imagenes/download2.webp"
+        ]
+      },
+      {
+        nombre: "Cancha Fútbol 3",
+        precio: 244,
+        ubicacion: "Ciudad Deportiva",
+        superficie: "Césped sintético",
+        imagenes: [
+          "/imagenes/OIP (1).webp"
+        ]
+      }
+    ];
+
+    const padelCanchas = [
+      {
+        nombre: "Cancha Pádel 1",
+        precio: 20,
+        ubicacion: "Club Pádel Central",
+        superficie: "Césped azul",
+        imagenes: [
+          "/imagenes/download (1).webp",
+          "/imagenes/download (2).webp"
+        ]
+      }
+      // Puedes agregar más canchas de pádel aquí
+    ];
+
+    // Función para crear las tarjetas y agregarlas a un contenedor
+    function renderCanchas(lista, contenedorId) {
+      const contenedor = document.getElementById(contenedorId);
+      lista.forEach(cancha => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        // Imagen principal
+        const img = document.createElement("img");
+        img.src = cancha.imagenes[0]; 
+        img.alt = cancha.nombre;
+        card.appendChild(img);
+
+        // Contenido
+        const cardContent = document.createElement("div");
+        cardContent.className = "card-content";
+
+        cardContent.innerHTML = `
+          <h3>${cancha.nombre}</h3>
+          <p>Precio: $${cancha.precio}/hora</p>
+        `;
+
+        // Botón reservar
+        const btn = document.createElement("button");
+        btn.textContent = "Reservar";
+        btn.onclick = () => {
+          // Concatenar las imágenes codificadas por coma para la URL
+          const imagenesStr = cancha.imagenes.map(url => encodeURIComponent(url)).join(",");
+          const url = `reserva.html?nombre=${encodeURIComponent(cancha.nombre)}&precio=${encodeURIComponent(cancha.precio)}&imagenes=${imagenesStr}&ubicacion=${encodeURIComponent(cancha.ubicacion)}&superficie=${encodeURIComponent(cancha.superficie)}`;
+          window.location.href = url;
+        };
+
+        cardContent.appendChild(btn);
+        card.appendChild(cardContent);
+        contenedor.appendChild(card);
+      });
+    }
+
+    // Renderizar las canchas al cargar la página
+    renderCanchas(futbolCanchas, "futbol-list");
+    renderCanchas(padelCanchas, "padel-list");
+
+    // Código de Tabs
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".content-section");
 
