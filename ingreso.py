@@ -1,255 +1,105 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reserva de Canchas</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+from flask import Flask, request, jsonify # Importacion de la libreria Flask
+from datetime import datetime # Importacion de la libreria datetime para manejo de fechas y horas.
+import sqlite3 # Importacion de la libreria MySQL Connector
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      padding: 2rem;
-      color: #333;
-    }
+# Identificador de la aplicacion.
+app = Flask(__name__)
 
-    h2 {
-      text-align: center;
-      margin-bottom: 2rem;
-      font-size: 2rem;
-    }
 
-    .tabs {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #ddd;
-    }
+# Conexion a la base de datos de usuario y reservas.
+def conexion_db():
+    """Establece y devuelve una conexión a la base de datos SQLite."""
+    try:
+        conn = sqlite3.connect(r"C:\Users\POWER\reservas_fp.db")
+        return conn
+    except sqlite3.Error as err:
+        print(f"Error al conectar a la base de datos SQLite: {err}")
+        return None
 
-    .tab {
-      padding: 0.8rem 2rem;
-      cursor: pointer;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
-      transition: 0.3s;
-    }
+# Ingreso y enrutador del registro.
+@app.route('/register', methods=['POST'])
+def registro_usuario():
+    """Registra un nuevo usuario en la base de datos."""
+    # Convierte la informacion en un archivo Json.
+    data = request.get_json()
 
-    .tab.active {
-      border-bottom: 3px solid #007bff;
-      color: #007bff;
-    }
+    # Ingreso de datos solicitados.
+    nombre_usuario = data.get('nombre', '').strip()
+    apellido_usuario = data.get('apellido', '').strip()
+    cedula_usuario = data.get('cedula', '').strip()
 
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
-      padding: 0 1rem;
-    }
+    # Validador de campos ingresados.
+    if not all([nombre_usuario, apellido_usuario, cedula_usuario]):
+        return jsonify({"error": "Todos los campos deben estar completos."}), 400
 
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      transition: transform 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+    # Toma la conexion con la base de datos.
+    conn = conexion_db()
+    if conn is None:
+        return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
 
-    .card:hover {
-      transform: translateY(-4px);
-    }
+    try:
+        # Creacion de un cursor para manejar la base de datos.
+        cursor = conn.cursor()
+        # Ingreso de datos a la base de datos. (Usando ? para SQLite y backticks para la tabla)
+        cursor.execute('''
+            INSERT INTO usuarios(nombre_usuario, apellido_usuario, cedula_usuario)
+            VALUES (?,?,?)
+        ''', (nombre_usuario, apellido_usuario, cedula_usuario))
+        # Se suben los cambios a la base de datos.
+        conn.commit()
+        return jsonify({"mensaje": "Usuario ingresado con éxito.", "id": cursor.lastrowid}), 201 # Devuelve el ID generado
+    # Manejo de errores por si la cedula se repite.
+    except sqlite3.Error as error:
+        # El mensaje de error de MySQL será diferente. Ajusta la comprobación.
+        if "UNIQUE constraint failed: usuarios.cedula_usuario" in str(error):
+            return jsonify({"error": "La cédula ya está registrada."}), 400
+        return jsonify({"error": f"Error de integridad: {str(error)}"}), 400
+    # Si se presenta un error en el programa se marca en el manejo de errores.
+    except Exception as error:
+        return jsonify({"error": f"Error inesperado en el programa: {str(error)}."}), 500
+    finally:
+        conn.close() # Cierre de la base de datos.
 
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
 
-    .card-content {
-      padding: 1rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+# Ingreso y enrutador de las reservas.
+@app.route('/reservation', methods=['POST'])
+def registro_reserva():
+    """Registra una nueva reserva en la base de datos."""
+    # Convierte la informacion en un archivo Json.
+    data = request.get_json()
 
-    .card-content h3 {
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
-    }
+    # Ingreso de datos solicitados.
+    fecha_reserva = data.get('fecha', '').strip()
+    hora_reserva = data.get('hora', '').strip()
+    hora_termino = data.get('termino', '').strip()
+    estado_reserva = data.get('estado', '').strip()
 
-    .card-content p {
-      margin-bottom: 0.8rem;
-      font-size: 0.95rem;
-      color: #555;
-    }
+    # Validador de campos ingresados.
+    if not all([fecha_reserva, hora_reserva, hora_termino, estado_reserva]):
+        return jsonify({"error": "Todos los campos deben estar completos."}), 400
 
-    .card-content button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      align-self: flex-start;
-    }
+    # Toma la conexion con la base de datos.
+    conn = conexion_db()
+    if conn is None:
+        return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
 
-    .card-content button:hover {
-      background-color: #0056b3;
-    }
+    try:
+        # Creacion del cursor para manejo de la base de datos.
+        cursor = conn.cursor()
+        # Ingreso de la informacion a la base de datos.
+        cursor.execute('''
+            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva)
+            VALUES(?,?,?,?)
+        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva))
+        # Se suben los cambios a la base de datos.
+        conn.commit()
+        return jsonify({"mensaje": "reserva ingresada con exito."}), 200
+    except sqlite3.IntegrityError as error:
+        if "UNIQUE constraint failed: reservas.fecha_reserva, reservas.hora_reserva" in str(error):
+            return jsonify({"error": "Ya existe una reserva para esa fecha y hora."}), 400
+        return jsonify({"error": "error de integridad"}), 400
+    except Exception as error:
+        return jsonify({"error": f"error inesperado en el programa : {str(error)}"}), 500
+    finally:
+        conn.close() # Se cierra la base de datos.
 
-    .content-section {
-      display: none;
-    }
-
-    .content-section.active {
-      display: block;
-    }
-
-    @media (max-width: 600px) {
-      .grid-container {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <h2>Nombre de Empresa</h2>
-
-  <div class="tabs">
-    <div class="tab active" data-tab="futbol">Canchas de Fútbol</div>
-    <div class="tab" data-tab="padel">Canchas de Pádel</div>
-  </div>
-
-  <!-- Fútbol Section -->
-  <div id="futbol" class="content-section active">
-    <div class="grid-container" id="futbol-list">
-      <!-- Aquí las canchas de fútbol se generarán con JS -->
-    </div>
-  </div>
-
-  <!-- Pádel Section -->
-  <div id="padel" class="content-section">
-    <div class="grid-container" id="padel-list">
-      <!-- Aquí las canchas de pádel se generarán con JS -->
-    </div>
-  </div>
-
-  <!-- JS para Tabs y generación dinámica de canchas -->
-  <script>
-    // Datos de canchas con varias imágenes para cada una
-    const futbolCanchas = [
-      {
-        nombre: "Cancha Fútbol 1",
-        precio: 29,
-        ubicacion: "Ciudad Deportiva",
-        superficie: "Césped sintético",
-        imagenes: [
-          "/imagenes/OIP.webp",
-          "/imagenes/OIP2.webp",
-          "/imagenes/OIP3.webp"
-        ]
-      },
-      {
-        nombre: "Cancha Fútbol 2",
-        precio: 230,
-        ubicacion: "Complejo Norte",
-        superficie: "Pasto natural",
-        imagenes: [
-          "/imagenes/download.webp",
-          "/imagenes/download2.webp"
-        ]
-      },
-      {
-        nombre: "Cancha Fútbol 3",
-        precio: 244,
-        ubicacion: "Ciudad Deportiva",
-        superficie: "Césped sintético",
-        imagenes: [
-          "/imagenes/OIP (1).webp"
-        ]
-      }
-    ];
-
-    const padelCanchas = [
-      {
-        nombre: "Cancha Pádel 1",
-        precio: 20,
-        ubicacion: "Club Pádel Central",
-        superficie: "Césped azul",
-        imagenes: [
-          "/imagenes/download (1).webp",
-          "/imagenes/download (2).webp"
-        ]
-      }
-      // Puedes agregar más canchas de pádel aquí
-    ];
-
-    // Función para crear las tarjetas y agregarlas a un contenedor
-    function renderCanchas(lista, contenedorId) {
-      const contenedor = document.getElementById(contenedorId);
-      lista.forEach(cancha => {
-        const card = document.createElement("div");
-        card.className = "card";
-
-        // Imagen principal
-        const img = document.createElement("img");
-        img.src = cancha.imagenes[0]; 
-        img.alt = cancha.nombre;
-        card.appendChild(img);
-
-        // Contenido
-        const cardContent = document.createElement("div");
-        cardContent.className = "card-content";
-
-        cardContent.innerHTML = `
-          <h3>${cancha.nombre}</h3>
-          <p>Precio: $${cancha.precio}/hora</p>
-        `;
-
-        // Botón reservar
-        const btn = document.createElement("button");
-        btn.textContent = "Reservar";
-        btn.onclick = () => {
-          // Concatenar las imágenes codificadas por coma para la URL
-          const imagenesStr = cancha.imagenes.map(url => encodeURIComponent(url)).join(",");
-          const url = `reserva.html?nombre=${encodeURIComponent(cancha.nombre)}&precio=${encodeURIComponent(cancha.precio)}&imagenes=${imagenesStr}&ubicacion=${encodeURIComponent(cancha.ubicacion)}&superficie=${encodeURIComponent(cancha.superficie)}`;
-          window.location.href = url;
-        };
-
-        cardContent.appendChild(btn);
-        card.appendChild(cardContent);
-        contenedor.appendChild(card);
-      });
-    }
-
-    // Renderizar las canchas al cargar la página
-    renderCanchas(futbolCanchas, "futbol-list");
-    renderCanchas(padelCanchas, "padel-list");
-
-    // Código de Tabs
-    const tabs = document.querySelectorAll(".tab");
-    const sections = document.querySelectorAll(".content-section");
-
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
-        sections.forEach(s => s.classList.remove("active"));
-
-        tab.classList.add("active");
-        document.getElementById(tab.getAttribute("data-tab")).classList.add("active");
-      });
-    });
-  </script>
-
-</body>
-</html>
