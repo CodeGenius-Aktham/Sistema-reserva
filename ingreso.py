@@ -1,99 +1,131 @@
-from flask import Flask, request, jsonify # Importacion de la libreria Flask
-from datetime import datetime # Importacion de la libreria datetime para manejo de fechas y horas.
-import sqlite3 # Importacion de la libreria SQLite3 para manejo de la base de datos.
-
+from flask import Flask, request, jsonify
+from datetime import datetime
+import sqlite3
+from flask_cors import CORS # Importa la extensión CORS
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
+CORS(app) # Habilita CORS para toda la aplicación Flask
+
+# Ruta absoluta a la base de datos.
+# Es buena práctica que esta ruta sea configurable (e.g., desde una variable de entorno)
+# o relativa al directorio de la aplicación para mayor portabilidad.
+DATABASE = r"C:\Users\POWER\reservas_fp.db"
 
 # Conexion a la base de datos de usuario y reservas.
 def conexion_db():
-    conn = sqlite3.connect(r"C:\Users\POWER\reservas_fp.db") # Conexion en la base de datos
-    conn.row_factory = sqlite3.Row 
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
     return conn
 
+# Funcion para inicializar la base de datos y crear tablas si no existen.
+def init_db():
+    conn = conexion_db()
+    cursor = conn.cursor()
+    # Crear tabla de usuarios
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_usuario TEXT NOT NULL,
+            apellido_usuario TEXT NOT NULL,
+            cedula_usuario TEXT NOT NULL UNIQUE
+        )
+    ''')
+    # Crear tabla de reservas
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reservas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha_reserva TEXT NOT NULL,
+            hora_reserva TEXT NOT NULL,
+            hora_termino TEXT NOT NULL,
+            estado_reserva TEXT NOT NULL,
+            UNIQUE(fecha_reserva, hora_reserva)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Endpoint para verificar la conexion a la base de datos
+@app.route('/check_db_connection', methods=['GET'])
+def check_db_connection():
+    try:
+        conn = conexion_db()
+        conn.cursor() # Intenta obtener un cursor para verificar la conexión
+        conn.close()
+        return jsonify({"status": "success", "message": "Conexión a la base de datos exitosa."}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Error al conectar con la base de datos: {str(e)}."}), 500
+
 # Ingreso y enrutador del registro.
-@app.route('/register', methods = ['POST'])
+@app.route('/register', methods=['POST'])
 def registro_usuario():
-        # Convierte la informacion en un archivo Json.
-        data = request.get_json()
+    data = request.get_json()
 
-        # Ingreso de datos solicitados.
-        nombre_usuario = data.get('nombre','').strip()
-        apellido_usuario =  data.get('apellido','').strip()
-        cedula_usuario = data.get('cedula','').strip()
+    nombre_usuario = data.get('nombre', '').strip()
+    apellido_usuario = data.get('apellido', '').strip()
+    cedula_usuario = data.get('cedula', '').strip()
 
-        # Validador de campos ingresados.
-        if not all([nombre_usuario,apellido_usuario,cedula_usuario]):
-            return jsonify({"error" : "todos los campos deben estar completos."}),400
+    if not all([nombre_usuario, apellido_usuario, cedula_usuario]):
+        return jsonify({"error": "Todos los campos deben estar completos."}), 400
 
-        # Toma la conexion con la base de datos.
-        conn = conexion_db()
-        try:
-            # Creacion de un cursor para manejar la base de datos.
-            cursor = conn.cursor()
-            # Ingreso de datos a la base de datos.
-            cursor.execute('''
-                        INSERT INTO usuarios(nombre_usuario,apellido_usuario,cedula_usuario)
-                        VALUES (?,?,?)
-                    ''',(nombre_usuario,apellido_usuario,cedula_usuario))
-            # Se suben los cambios a la base de datos.
-            conn.commit()
-            return jsonify({"mensaje" : "usuario ingresado con exito."}),200
-        # Manejo de errores por si la cedula se repite.
-        except sqlite3.IntegrityError as error:
-            if "UNIQUE constraint failed: usuarios.cedula_usuario" in str(error):
-                return jsonify({"error" : "La cedula ya esta registrada"}),400
-            return jsonify({"error" : "error de integridad"}),400
-        # Si se presenta un error en el programa se marca en el manejo de errores.
-        except Exception as error:
-            return jsonify({"error" : f"error inesperado en el programa : {str(error)}."}),500
-        finally:
-            conn.close() # Se cierra la base de datos.
+    conn = conexion_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO usuarios(nombre_usuario, apellido_usuario, cedula_usuario)
+            VALUES (?, ?, ?)
+        ''', (nombre_usuario, apellido_usuario, cedula_usuario))
+        conn.commit()
+        return jsonify({"mensaje": "Usuario ingresado con éxito."}), 200
+    except sqlite3.IntegrityError as error:
+        if "UNIQUE constraint failed: usuarios.cedula_usuario" in str(error):
+            return jsonify({"error": "La cédula ya está registrada."}), 400
+        return jsonify({"error": "Error de integridad: " + str(error)}), 400
+    except Exception as error:
+        return jsonify({"error": f"Error inesperado en el programa: {str(error)}."}), 500
+    finally:
+        conn.close()
 
-
-# Ingresp y enrutador de las reservas.
-@app.route('/reservation', methods = ['POST'])
+# Ingreso y enrutador de las reservas.
+@app.route('/reservation', methods=['POST'])
 def registro_reserva():
-        # Convierte la informacion en un archivo Json.
-        data = request.get_json()
+    data = request.get_json()
 
-        # Ingreso de datos soliciatados.
-        fecha_reserva = data.get('fecha','').strip()
-        hora_reserva = data.get('hora','').strip()
-        hora_termino = data.get('termino','').strip()
-        estado_reserva = data.get('estado','').strip()
+    fecha_reserva = data.get('fecha', '').strip()
+    hora_reserva = data.get('hora', '').strip()
+    hora_termino = data.get('termino', '').strip()
+    estado_reserva = data.get('estado', '').strip()
 
-        # Validador de campos ingresados.
-        if not all([fecha_reserva,hora_reserva,hora_termino,estado_reserva]):
-            return jsonify({"error" : "todos los campos deben estar completos."}),400
-        try:
-            datetime.strptime(fecha_reserva,"%d/%m/%Y")
-            datetime.strptime(hora_reserva,"%H:%M")
-            datetime.strptime(hora_termino,"%H:%M")
-        except ValueError:
-            return jsonify({"error" : "La fecha o las horas no tienen un formato válido (DD/MM/YYYY y HH:MM)."}),400
+    if not all([fecha_reserva, hora_reserva, hora_termino, estado_reserva]):
+        return jsonify({"error": "Todos los campos deben estar completos."}), 400
 
-        # Toma la conexion con la base de datos.
-        conn = conexion_db()
-        try:
-            # Creacion del cursor para manejo de la base de datos.
-            cursor = conn.cursor()
-            # Ingreso de la informacion a la base de datos.
-            cursor.execute('''
-                        INSERT INTO reservas(fecha_reserva,hora_reserva,hora_termino,estado_reserva)
-                        VALUES(?,?,?,?)
-                        ''',(fecha_reserva,hora_reserva,hora_termino,estado_reserva))
-            # Se suben los cambios a la base de datos.
-            conn.commit()
-            return jsonify({"mensaje" : "reserva ingresada con exito."}),200
-        # Manejo de errores por si las fechas de reserva y la hora de la reserva de la cancha son las mismas-
-        except sqlite3.IntegrityError as error:
-            if "UNIQUE constraint failed: reservas.fecha_reserva, reservas.hora_reserva" in str(error):
-                return jsonify({"error" : "Ya existe una reserva para esa fecha y hora."}),400
-            return jsonify({"error" : "error de integridad"}),400
-        # Si se presenta un error en el programa se marca en el manejo de errores.
-        except Exception as error:
-            return jsonify({"error" : f"error inesperado en el programa : {str(error)}"}),500
-        finally:
-            conn.close() # Se cierra la base de datos.
+    try:
+        # Validación de formato de fecha y hora
+        datetime.strptime(fecha_reserva, "%d/%m/%Y")
+        datetime.strptime(hora_reserva, "%H:%M")
+        datetime.strptime(hora_termino, "%H:%M")
+    except ValueError:
+        return jsonify({"error": "La fecha o las horas no tienen un formato válido (DD/MM/YYYY y HH:MM)."}), 400
+
+    conn = conexion_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva)
+            VALUES(?, ?, ?, ?)
+        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva))
+        conn.commit()
+        return jsonify({"mensaje": "Reserva ingresada con éxito."}), 200
+    except sqlite3.IntegrityError as error:
+        if "UNIQUE constraint failed: reservas.fecha_reserva, reservas.hora_reserva" in str(error):
+            return jsonify({"error": "Ya existe una reserva para esa fecha y hora."}), 400
+        return jsonify({"error": "Error de integridad: " + str(error)}), 400
+    except Exception as error:
+        return jsonify({"error": f"Error inesperado en el programa: {str(error)}"}), 500
+    finally:
+        conn.close()
+
+# Esto asegura que la base de datos se inicialice cuando el script se ejecute directamente
+if __name__ == '__main__':
+    init_db() # Llama a la función para crear las tablas si no existen
+    app.run(debug=True) # Inicia el servidor Flask en modo depuración
