@@ -94,11 +94,11 @@
     form input,
     form select {
       width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 0.7rem;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
 
     form button {
@@ -121,11 +121,6 @@
       background-color: #e9ecef;
       padding: 1rem;
       border-radius: 6px;
-      font-size: 0.95rem;
-    }
-
-    .factura p {
-      margin-bottom: 0.4rem;
     }
 
     @media (max-width: 768px) {
@@ -147,16 +142,14 @@
   <div class="container">
     <!-- IZQUIERDA: Carrusel + info -->
     <div class="left-panel">
-      <div class="carousel">
-        <img src="https://via.placeholder.com/600x300.png?text=Cancha+1" class="active">
-        <img src="https://via.placeholder.com/600x300.png?text=Cancha+2">
-        <img src="https://via.placeholder.com/600x300.png?text=Cancha+3">
+      <div class="carousel" id="carousel">
+        <!-- Las imágenes se cargan dinámicamente -->
       </div>
       <div class="cancha-info">
-        <h3>Cancha Fútbol 1</h3>
-        <p>Ubicación: Ciudad Deportiva</p>
-        <p>Superficie: Césped sintético</p>
-        <p>Precio por hora: <strong>$30</strong></p>
+        <h3 id="cancha-nombre">Cargando...</h3>
+        <p>Ubicación: <span id="cancha-ubicacion"></span></p>
+        <p>Superficie: <span id="cancha-superficie"></span></p>
+        <p>Precio por hora: <strong>$<span id="cancha-precio"></span></strong></p>
       </div>
     </div>
 
@@ -186,10 +179,10 @@
 
         <div class="factura" id="factura" style="display: none;">
           <h4>Factura</h4>
+          <p><strong>Cancha:</strong> <span id="fact-cancha"></span></p>
           <p><strong>Nombre:</strong> <span id="fact-nombre"></span></p>
           <p><strong>Fecha:</strong> <span id="fact-fecha"></span></p>
-          <p><strong>Horario:</strong> <span id="fact-horario"></span></p>
-          <p><strong>Duración:</strong> <span id="fact-horas"></span> horas</p>
+          <p><strong>Horas:</strong> <span id="fact-horas"></span></p>
           <p><strong>Total:</strong> $<span id="fact-total"></span></p>
         </div>
       </form>
@@ -197,28 +190,53 @@
   </div>
 
   <script>
-    const precioPorHora = 30;
-    const fechaInput = document.getElementById("fecha");
-    const hoy = new Date();
-    fechaInput.min = hoy.toISOString().split("T")[0];
+    // Obtener parámetros de URL
+    const params = new URLSearchParams(window.location.search);
 
-    const images = document.querySelectorAll(".carousel img");
-    let current = 0;
-    setInterval(() => {
-      images[current].classList.remove("active");
-      current = (current + 1) % images.length;
-      images[current].classList.add("active");
-    }, 3000);
+    const canchaNombre = params.get("nombre") || "Cancha Desconocida";
+    const canchaPrecio = parseFloat(params.get("precio")) || 30;
+    const canchaUbicacion = params.get("ubicacion") || "No especificada";
+    const canchaSuperficie = params.get("superficie") || "No especificada";
 
+    // Obtener la lista de imágenes separadas por coma
+    const canchaImgsParam = params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1";
+    // Decodificamos y luego separamos por coma para obtener un array
+    const canchaImgs = canchaImgsParam.split(",").map(url => decodeURIComponent(url.trim()));
+
+    // Mostrar datos cancha
+    document.getElementById("cancha-nombre").textContent = canchaNombre;
+    document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
+    document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
+    document.getElementById("cancha-superficie").textContent = canchaSuperficie;
+
+    // Crear carrusel con imágenes dinámicas
+    const carousel = document.getElementById("carousel");
+    canchaImgs.forEach((url, index) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = `Imagen ${index + 1} de ${canchaNombre}`;
+      if (index === 0) img.classList.add("active");
+      carousel.appendChild(img);
+    });
+
+    // Carrusel automático solo si hay más de una imagen
+    const images = carousel.querySelectorAll("img");
+    if (images.length > 1) {
+      let current = 0;
+      setInterval(() => {
+        images[current].classList.remove("active");
+        current = (current + 1) % images.length;
+        images[current].classList.add("active");
+      }, 3000);
+    }
+
+    // Manejo del formulario y factura
     const form = document.getElementById("reserva-form");
     const facturaDiv = document.getElementById("factura");
 
-    const campos = ["nombre", "apellido", "fecha", "horaInicio", "horaFin"];
-    campos.forEach(id => {
-      document.getElementById(id).addEventListener("input", actualizarFactura);
-    });
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    function actualizarFactura() {
       const nombre = document.getElementById("nombre").value.trim();
       const apellido = document.getElementById("apellido").value.trim();
       const fecha = document.getElementById("fecha").value;
@@ -226,37 +244,29 @@
       const horaFin = document.getElementById("horaFin").value;
 
       if (!nombre || !apellido || !fecha || !horaInicio || !horaFin) {
-        facturaDiv.style.display = "none";
+        alert("Por favor completa todos los campos.");
         return;
       }
 
-      const inicio = new Date(`${fecha}T${horaInicio}:00`);
-      const fin = new Date(`${fecha}T${horaFin}:00`);
-      const ahora = new Date();
+      const inicio = parseInt(horaInicio.split(":")[0]);
+      const fin = parseInt(horaFin.split(":")[0]);
 
-      const fechaObj = new Date(fecha);
-      fechaObj.setHours(0, 0, 0, 0);
-      const hoyObj = new Date();
-      hoyObj.setHours(0, 0, 0, 0);
+      let horas = fin - inicio;
 
-      if (fechaObj < hoyObj) return (facturaDiv.style.display = "none");
-      if (fechaObj.getTime() === hoyObj.getTime() && inicio <= ahora) return (facturaDiv.style.display = "none");
-      if (fin <= inicio) return (facturaDiv.style.display = "none");
+      if (horas <= 0) {
+        alert("La hora de fin debe ser mayor que la de inicio.");
+        return;
+      }
 
-      const horas = (fin - inicio) / (1000 * 60 * 60);
-      const total = horas * precioPorHora;
+      const total = horas * canchaPrecio;
 
+      document.getElementById("fact-cancha").textContent = canchaNombre;
       document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
       document.getElementById("fact-fecha").textContent = fecha;
-      document.getElementById("fact-horario").textContent = `De ${horaInicio} a ${horaFin}`;
-      document.getElementById("fact-horas").textContent = horas.toFixed(2);
+      document.getElementById("fact-horas").textContent = horas;
       document.getElementById("fact-total").textContent = total.toFixed(2);
-      facturaDiv.style.display = "block";
-    }
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert("Reserva enviada con éxito. Revisa la factura.");
+      facturaDiv.style.display = "block";
     });
   </script>
 
