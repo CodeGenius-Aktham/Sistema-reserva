@@ -40,9 +40,9 @@ def registro_usuario():
     try:
         # Creacion de un cursor para manejar la base de datos.
         cursor = conn.cursor()
-        # Ingreso de datos a la base de datos. (Usando %s para MySQL y backticks para la tabla)
+        # Ingreso de datos a la base de datos. (Usando ? para SQLite y backticks para la tabla)
         cursor.execute('''
-            INSERT INTO `usuarios`(nombre_usuario, apellido_usuario, cedula_usuario)
+            INSERT INTO usuarios(nombre_usuario, apellido_usuario, cedula_usuario)
             VALUES (?,?,?)
         ''', (nombre_usuario, apellido_usuario, cedula_usuario))
         # Se suben los cambios a la base de datos.
@@ -51,16 +51,14 @@ def registro_usuario():
     # Manejo de errores por si la cedula se repite.
     except sqlite3.Error as error:
         # El mensaje de error de MySQL será diferente. Ajusta la comprobación.
-        if "Duplicate entry" in str(error) and "for key 'usuarios.cedula_usuario'" in str(error):
+        if "UNIQUE constraint failed: usuarios.cedula_usuario" in str(error):
             return jsonify({"error": "La cédula ya está registrada."}), 400
         return jsonify({"error": f"Error de integridad: {str(error)}"}), 400
     # Si se presenta un error en el programa se marca en el manejo de errores.
     except Exception as error:
         return jsonify({"error": f"Error inesperado en el programa: {str(error)}."}), 500
     finally:
-        if conn and conn.is_connected(): # Asegúrate de que la conexión exista y esté abierta antes de intentar cerrarla
-            cursor.close()
-            conn.close()
+        conn.close() # Cierre de la base de datos.
 
 
 # Ingreso y enrutador de las reservas.
