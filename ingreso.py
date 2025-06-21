@@ -2,28 +2,41 @@ from flask import Flask, request, jsonify # Importacion de la libreria Flask
 from datetime import datetime # Importacion de la libreria datetime para manejo de fechas y horas.
 import sqlite3 # Importacion de la libreria SQLite3 para manejo de la base de datos.
 from flask_cors import CORS # Importacion de Flask-CORS para manejar las solicitudes de origen cruzado.
-
+import os # Importacion para manejar rutas de archivos
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
 CORS(app) # Habilitar CORS para toda la aplicación Flask.
 
+# Define la ruta relativa a la base de datos.
+# Esto asume que 'reservas_fp.db' estará en la misma carpeta que este script.
+DATABASE_NAME = 'reservas_fp.db'
+# Obtiene la ruta absoluta del directorio actual del script
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# Une la ruta base con el nombre del archivo de la base de datos
+DATABASE_PATH = os.path.join(BASE_DIR, DATABASE_NAME)
+
 # Conexion a la base de datos de usuario y reservas.
 def conexion_db():
-    # Es importante que el path a la base de datos sea absoluto o relativo
-    # al script de Flask si se va a ejecutar en un entorno específico.
-    # Para este ejemplo, se mantiene el path original.
-    conn = sqlite3.connect(r"C:\Users\POWER\reservas_fp.db") # Conexion en la base de datos
+    # Conexión a la base de datos usando la ruta definida arriba.
+    # Si la base de datos no existe, SQLite la creará automáticamente en esta ruta.
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 # Función para inicializar la base de datos (crear tablas si no existen)
 def init_db():
+    # Asegúrate de que el directorio para la base de datos exista
+    db_directory = os.path.dirname(DATABASE_PATH)
+    if not os.path.exists(db_directory):
+        os.makedirs(db_directory)
+        print(f"Directorio creado para la base de datos: {db_directory}")
+
     conn = conexion_db()
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY PRIMARY KEY AUTOINCREMENT,
             nombre_usuario TEXT NOT NULL,
             apellido_usuario TEXT NOT NULL,
             cedula_usuario TEXT UNIQUE NOT NULL
@@ -31,7 +44,7 @@ def init_db():
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reservas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY PRIMARY KEY AUTOINCREMENT,
             fecha_reserva TEXT NOT NULL,
             hora_reserva TEXT NOT NULL,
             hora_termino TEXT NOT NULL,
@@ -41,8 +54,11 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
+    print(f"Base de datos '{DATABASE_PATH}' y tablas verificadas/creadas.")
+
 
 # Llamar a init_db al inicio para asegurar que las tablas existen
+# Esto es importante para que la DB se cree o verifique cada vez que la app se inicia.
 init_db()
 
 

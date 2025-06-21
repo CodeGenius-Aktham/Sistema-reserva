@@ -110,8 +110,14 @@
     </div>
 
     <script>
-        // URL base de tu API Flask
-        const API_BASE_URL = 'http://127.0.0.1:5000'; // Asegúrate de que esta URL coincida con la de tu Flask app
+        // ¡IMPORTANTE!
+        // Si tu página HTML está alojada en GitHub Pages,
+        // la URL de tu API de Flask NO puede ser 'http://127.0.0.1:5000'
+        // porque esta es una dirección local y no es accesible desde Internet.
+        // Necesitas desplegar tu API de Flask en un servidor público (como Render, Heroku, PythonAnywhere, etc.)
+        // y luego reemplazar 'http://127.0.0.1:5000' con la URL pública de tu API desplegada.
+        // Por ejemplo: const API_BASE_URL = 'https://tu-api-desplegada.com';
+        const API_BASE_URL = 'http://127.0.0.1:5000'; // <<--- CAMBIA ESTO A LA URL DE TU API DESPLEGADA
 
         const registrationForm = document.getElementById('registrationForm');
         const usersTableBody = document.getElementById('usersTableBody');
@@ -164,7 +170,7 @@
                 }
             } catch (error) {
                 console.error('Error al conectar con la API de registro:', error);
-                showMessage('Error de conexión con el servidor. Asegúrate de que la API está en ejecución.', 'error');
+                showMessage('Error de conexión con el servidor. Asegúrate de que la API está en ejecución y la URL es correcta.', 'error');
             }
         });
 
@@ -203,7 +209,7 @@
             } catch (error) {
                 console.error('Error al conectar con la API para obtener usuarios:', error);
                 usersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Error al cargar usuarios.</td></tr>';
-                showMessage('Error al cargar la lista de usuarios. Asegúrate de que la API está en ejecución.', 'error');
+                showMessage('Error al cargar la lista de usuarios. Asegúrate de que la API está en ejecución y la URL es correcta.', 'error');
             }
         }
 
