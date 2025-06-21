@@ -1,99 +1,130 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask
 from datetime import datetime # Importacion de la libreria datetime para manejo de fechas y horas.
-import sqlite3 # Importacion de la libreria SQLite3 para manejo de la base de datos.
-
+import mysql.connector # Importacion de la libreria MySQL Connector
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
 
+# --- Configuración de la base de datos MySQL ---
+DB_CONFIG = {
+    'host': 'localhost',      # Generalmente 'localhost'
+    'user': 'root',           # Tu usuario de MySQL
+    'password': '',           # Tu contraseña de MySQL
+    'database': 'usuarios-registro' # EL NOMBRE EXACTO DE TU DB EN phpMyAdmin
+}
+
 # Conexion a la base de datos de usuario y reservas.
 def conexion_db():
-    conn = sqlite3.connect(r"C:\Users\POWER\reservas_fp.db") # Conexion en la base de datos
-    conn.row_factory = sqlite3.Row 
-    return conn
+    """Establece y devuelve una conexión a la base de datos MySQL."""
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error al conectar a la base de datos MySQL: {err}")
+        return None
 
 # Ingreso y enrutador del registro.
-@app.route('/register', methods = ['POST'])
+@app.route('/register', methods=['POST'])
 def registro_usuario():
-        # Convierte la informacion en un archivo Json.
-        data = request.get_json()
+    """Registra un nuevo usuario en la base de datos."""
+    # Convierte la informacion en un archivo Json.
+    data = request.get_json()
 
-        # Ingreso de datos solicitados.
-        nombre_usuario = data.get('nombre','').strip()
-        apellido_usuario =  data.get('apellido','').strip()
-        cedula_usuario = data.get('cedula','').strip()
+    # Ingreso de datos solicitados.
+    nombre_usuario = data.get('nombre', '').strip()
+    apellido_usuario = data.get('apellido', '').strip()
+    cedula_usuario = data.get('cedula', '').strip()
 
-        # Validador de campos ingresados.
-        if not all([nombre_usuario,apellido_usuario,cedula_usuario]):
-            return jsonify({"error" : "todos los campos deben estar completos."}),400
+    # Validador de campos ingresados.
+    if not all([nombre_usuario, apellido_usuario, cedula_usuario]):
+        return jsonify({"error": "Todos los campos deben estar completos."}), 400
 
-        # Toma la conexion con la base de datos.
-        conn = conexion_db()
-        try:
-            # Creacion de un cursor para manejar la base de datos.
-            cursor = conn.cursor()
-            # Ingreso de datos a la base de datos.
-            cursor.execute('''
-                        INSERT INTO usuarios(nombre_usuario,apellido_usuario,cedula_usuario)
-                        VALUES (?,?,?)
-                    ''',(nombre_usuario,apellido_usuario,cedula_usuario))
-            # Se suben los cambios a la base de datos.
-            conn.commit()
-            return jsonify({"mensaje" : "usuario ingresado con exito."}),200
-        # Manejo de errores por si la cedula se repite.
-        except sqlite3.IntegrityError as error:
-            if "UNIQUE constraint failed: usuarios.cedula_usuario" in str(error):
-                return jsonify({"error" : "La cedula ya esta registrada"}),400
-            return jsonify({"error" : "error de integridad"}),400
-        # Si se presenta un error en el programa se marca en el manejo de errores.
-        except Exception as error:
-            return jsonify({"error" : f"error inesperado en el programa : {str(error)}."}),500
-        finally:
-            conn.close() # Se cierra la base de datos.
+    # Toma la conexion con la base de datos.
+    conn = conexion_db()
+    if conn is None:
+        return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
+
+    try:
+        # Creacion de un cursor para manejar la base de datos.
+        cursor = conn.cursor()
+        # Ingreso de datos a la base de datos. (Usando %s para MySQL y backticks para la tabla)
+        cursor.execute('''
+            INSERT INTO `usuarios`(nombre_usuario, apellido_usuario, cedula_usuario)
+            VALUES (%s, %s, %s)
+        ''', (nombre_usuario, apellido_usuario, cedula_usuario))
+        # Se suben los cambios a la base de datos.
+        conn.commit()
+        return jsonify({"mensaje": "Usuario ingresado con éxito.", "id": cursor.lastrowid}), 201 # Devuelve el ID generado
+    # Manejo de errores por si la cedula se repite.
+    except mysql.connector.IntegrityError as error:
+        # El mensaje de error de MySQL será diferente. Ajusta la comprobación.
+        if "Duplicate entry" in str(error) and "for key 'usuarios.cedula_usuario'" in str(error):
+            return jsonify({"error": "La cédula ya está registrada."}), 400
+        return jsonify({"error": f"Error de integridad: {str(error)}"}), 400
+    # Si se presenta un error en el programa se marca en el manejo de errores.
+    except Exception as error:
+        return jsonify({"error": f"Error inesperado en el programa: {str(error)}."}), 500
+    finally:
+        if conn and conn.is_connected(): # Asegúrate de que la conexión exista y esté abierta antes de intentar cerrarla
+            cursor.close()
+            conn.close()
 
 
-# Ingresp y enrutador de las reservas.
-@app.route('/reservation', methods = ['POST'])
+# Ingreso y enrutador de las reservas.
+@app.route('/reservation', methods=['POST'])
 def registro_reserva():
-        # Convierte la informacion en un archivo Json.
-        data = request.get_json()
+    """Registra una nueva reserva en la base de datos."""
+    # Convierte la informacion en un archivo Json.
+    data = request.get_json()
 
-        # Ingreso de datos soliciatados.
-        fecha_reserva = data.get('fecha','').strip()
-        hora_reserva = data.get('hora','').strip()
-        hora_termino = data.get('termino','').strip()
-        estado_reserva = data.get('estado','').strip()
+    # Ingreso de datos solicitados.
+    fecha_reserva = data.get('fecha', '').strip()
+    hora_reserva = data.get('hora', '').strip()
+    hora_termino = data.get('termino', '').strip()
+    estado_reserva = data.get('estado', '').strip()
 
-        # Validador de campos ingresados.
-        if not all([fecha_reserva,hora_reserva,hora_termino,estado_reserva]):
-            return jsonify({"error" : "todos los campos deben estar completos."}),400
-        try:
-            datetime.strptime(fecha_reserva,"%d/%m/%Y")
-            datetime.strptime(hora_reserva,"%H:%M")
-            datetime.strptime(hora_termino,"%H:%M")
-        except ValueError:
-            return jsonify({"error" : "La fecha o las horas no tienen un formato válido (DD/MM/YYYY y HH:MM)."}),400
+    # Validador de campos ingresados.
+    if not all([fecha_reserva, hora_reserva, hora_termino, estado_reserva]):
+        return jsonify({"error": "Todos los campos deben estar completos."}), 400
 
-        # Toma la conexion con la base de datos.
-        conn = conexion_db()
-        try:
-            # Creacion del cursor para manejo de la base de datos.
-            cursor = conn.cursor()
-            # Ingreso de la informacion a la base de datos.
-            cursor.execute('''
-                        INSERT INTO reservas(fecha_reserva,hora_reserva,hora_termino,estado_reserva)
-                        VALUES(?,?,?,?)
-                        ''',(fecha_reserva,hora_reserva,hora_termino,estado_reserva))
-            # Se suben los cambios a la base de datos.
-            conn.commit()
-            return jsonify({"mensaje" : "reserva ingresada con exito."}),200
-        # Manejo de errores por si las fechas de reserva y la hora de la reserva de la cancha son las mismas-
-        except sqlite3.IntegrityError as error:
-            if "UNIQUE constraint failed: reservas.fecha_reserva, reservas.hora_reserva" in str(error):
-                return jsonify({"error" : "Ya existe una reserva para esa fecha y hora."}),400
-            return jsonify({"error" : "error de integridad"}),400
-        # Si se presenta un error en el programa se marca en el manejo de errores.
-        except Exception as error:
-            return jsonify({"error" : f"error inesperado en el programa : {str(error)}"}),500
-        finally:
-            conn.close() # Se cierra la base de datos.
+    try:
+        # Validar formatos de fecha y hora (esto es válido para MySQL si usas VARCHAR o si quieres validarlo antes de la BD)
+        # Si usas DATE/TIME en MySQL, asegúrate de que los formatos sean compatibles o conviértelos.
+        datetime.strptime(fecha_reserva, "%d/%m/%Y")
+        datetime.strptime(hora_reserva, "%H:%M")
+        datetime.strptime(hora_termino, "%H:%M")
+    except ValueError:
+        return jsonify({"error": "La fecha o las horas no tienen un formato válido (DD/MM/YYYY y HH:MM)."}), 400
+
+    # Toma la conexion con la base de datos.
+    conn = conexion_db()
+    if conn is None:
+        return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
+
+    try:
+        # Creacion del cursor para manejo de la base de datos.
+        cursor = conn.cursor()
+        # Ingreso de la informacion a la base de datos. (Usando %s para MySQL y backticks para la tabla)
+        cursor.execute('''
+            INSERT INTO `reservas`(fecha_reserva, hora_reserva, hora_termino, estado_reserva)
+            VALUES(%s, %s, %s, %s)
+        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva))
+        # Se suben los cambios a la base de datos.
+        conn.commit()
+        return jsonify({"mensaje": "Reserva ingresada con éxito.", "id": cursor.lastrowid}), 201
+    # Manejo de errores por si las fechas de reserva y la hora de la reserva de la cancha son las mismas-
+    except mysql.connector.IntegrityError as error:
+        # El mensaje de error de MySQL será diferente. Ajusta la comprobación.
+        if "Duplicate entry" in str(error) and "for key 'reservas.fecha_reserva'" in str(error): # Ajusta el key name
+            return jsonify({"error": "Ya existe una reserva para esa fecha y hora."}), 400
+        return jsonify({"error": f"Error de integridad: {str(error)}"}), 400
+    # Si se presenta un error en el programa se marca en el manejo de errores.
+    except Exception as error:
+        return jsonify({"error": f"Error inesperado en el programa: {str(error)}"}), 500
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+if __name__ == '__main__':
+    app.run(debug=True) # debug=True para desarrollo

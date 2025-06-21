@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probar Conexión Backend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 600px; margin: 30px auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; text-align: center; margin-bottom: 25px; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="email"], input[type="number"], input[type="date"], input[type="time"] {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button:hover { background-color: #0056b3; }
+        #message-area {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success { background-color: #e6ffe6; color: #28a745; border: 1px solid #28a745; }
+        .error { background-color: #ffe6e6; color: #dc3545; border: 1px solid #dc3545; }
+        .info { background-color: #e0f2f7; color: #17a2b8; border: 1px solid #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Herramienta de Prueba de Conexión Backend</h1>
+
+        <div class="section">
+            <h2>1. Probar Conexión a Base de Datos</h2>
+            <p>Haz clic para verificar si el backend puede conectar con MySQL.</p>
+            <button onclick="checkDatabaseConnection()">Verificar Conexión a DB</button>
+            <div id="db-connection-message" class="message-area"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Registrar Nuevo Usuario</h2>
+            <p>Envía datos para probar la inserción en la tabla 'usuarios'.</p>
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" placeholder="Escribe el nombre">
+
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" placeholder="Escribe el apellido">
+
+            <label for="cedula">Cédula:</label>
+            <input type="text" id="cedula" placeholder="Escribe la cédula">
+
+            <button onclick="registerUser()">Registrar Usuario</button>
+            <div id="register-message" class="message-area"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Registrar Nueva Reserva</h2>
+            <p>Envía datos para probar la inserción en la tabla 'reservas'.</p>
+            <label for="fecha">Fecha (DD/MM/YYYY):</label>
+            <input type="text" id="fecha" placeholder="Ej: 21/06/2025">
+
+            <label for="hora">Hora Inicio (HH:MM):</label>
+            <input type="text" id="hora" placeholder="Ej: 14:00">
+
+            <label for="termino">Hora Fin (HH:MM):</label>
+            <input type="text" id="termino" placeholder="Ej: 15:00">
+
+            <label for="estado">Estado de la Reserva:</label>
+            <input type="text" id="estado" placeholder="Ej: Pendiente">
+
+            <button onclick="registerReservation()">Registrar Reserva</button>
+            <div id="reservation-message" class="message-area"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // Define la URL base de tu backend Flask.
+        // Si lo estás ejecutando LOCALMENTE, será:
+        const API_BASE_URL = 'http://127.0.0.1:5000';
+        // Si lo despliegas en un servicio como Heroku, Railway, etc., será la URL de ese servicio:
+        // const API_BASE_URL = 'https://tu-app-flask.herokuapp.com';
+
+        // Función para mostrar mensajes en la UI
+        function showMessage(elementId, message, type) {
+            const messageArea = document.getElementById(elementId);
+            messageArea.textContent = message;
+            messageArea.className = 'message-area ' + type; // Añade la clase CSS para el estilo
+        }
+
+        // --- Función para verificar la conexión a la base de datos ---
+        async function checkDatabaseConnection() {
+            showMessage('db-connection-message', 'Verificando conexión...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/check_db_connection`);
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('db-connection-message', data.message, 'success');
+                } else {
+                    showMessage('db-connection-message', `Error: ${data.message || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error de red al verificar conexión:', error);
+                showMessage('db-connection-message', `Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        // --- Función para registrar un usuario ---
+        async function registerUser() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const apellido = document.getElementById('apellido').value.trim();
+            const cedula = document.getElementById('cedula').value.trim();
+
+            if (!nombre || !apellido || !cedula) {
+                showMessage('register-message', 'Por favor, completa todos los campos del usuario.', 'error');
+                return;
+            }
+
+            showMessage('register-message', 'Registrando usuario...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nombre: nombre, apellido: apellido, cedula: cedula })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('register-message', data.mensaje, 'success');
+                    // Limpiar campos
+                    document.getElementById('nombre').value = '';
+                    document.getElementById('apellido').value = '';
+                    document.getElementById('cedula').value = '';
+                } else {
+                    showMessage('register-message', `Error: ${data.error || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error de red al registrar usuario:', error);
+                showMessage('register-message', `Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        // --- Función para registrar una reserva ---
+        async function registerReservation() {
+            const fecha = document.getElementById('fecha').value.trim();
+            const hora = document.getElementById('hora').value.trim();
+            const termino = document.getElementById('termino').value.trim();
+            const estado = document.getElementById('estado').value.trim();
+
+            if (!fecha || !hora || !termino || !estado) {
+                showMessage('reservation-message', 'Por favor, completa todos los campos de la reserva.', 'error');
+                return;
+            }
+
+            showMessage('reservation-message', 'Registrando reserva...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/reservation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fecha: fecha, hora: hora, termino: termino, estado: estado })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('reservation-message', data.mensaje, 'success');
+                    // Limpiar campos
+                    document.getElementById('fecha').value = '';
+                    document.getElementById('hora').value = '';
+                    document.getElementById('termino').value = '';
+                    document.getElementById('estado').value = '';
+                } else {
+                    showMessage('reservation-message', `Error: ${data.error || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error de red al registrar reserva:', error);
+                showMessage('reservation-message', `Error de conexión: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
