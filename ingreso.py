@@ -5,10 +5,7 @@ import sqlite3 # Importacion de la libreria MySQL Connector
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": [
-    "https://codegenius-aktham.github.io",      # frontend
-    "https://sistema-reserva-2.onrender.com"      # backend
-]}})
+CORS(app, resources={r"/*": {"origins": "https://codegenius-aktham.github.io"}})
 
 # Conexion a la base de datos de usuario y reservas.
 def conexion_db():
