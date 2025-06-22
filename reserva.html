@@ -225,6 +225,7 @@
     const form = document.getElementById("reserva-form");
     const facturaDiv = document.getElementById("factura");
 
+    <!-- 🔁 Lógica del envío del formulario -->
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
@@ -251,7 +252,7 @@
 
       const total = horas * canchaPrecio;
 
-      // Mostrar factura
+      // Mostrar factura antes de enviar
       document.getElementById("fact-cancha").textContent = canchaNombre;
       document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
       document.getElementById("fact-fecha").textContent = fecha;
@@ -259,7 +260,6 @@
       document.getElementById("fact-total").textContent = total.toFixed(2);
       facturaDiv.style.display = "block";
 
-      // Imprimir factura en consola
       console.log("📄 Factura generada:");
       console.log({
         cancha: canchaNombre,
@@ -269,7 +269,7 @@
         total: `$${total.toFixed(2)}`
       });
 
-      // Enviar usuario
+      // Luego de mostrar la factura, enviar datos
       fetch("http://localhost:5000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -286,7 +286,6 @@
           return;
         }
 
-        // Enviar reserva
         fetch("http://localhost:5000/reservation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -312,6 +311,7 @@
       });
     });
   </script>
-  </script>
+
+
 </body>
 </html>
