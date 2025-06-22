@@ -16,11 +16,24 @@
       background-color: #f4f6f8;
       padding: 2rem;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
-    h2 {
-      text-align: center;
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 2rem;
+    }
+
+    header img.logo {
+      height: 50px;
+      margin-right: 1rem;
+    }
+
+    header h2 {
       font-size: 2rem;
     }
 
@@ -114,39 +127,69 @@
       display: block;
     }
 
+    footer {
+      background-color: #23531c;
+      text-align: center;
+      padding: 1rem;
+      margin-top: auto;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: #ffffff;
+    }
+
     @media (max-width: 600px) {
       .grid-container {
         grid-template-columns: 1fr;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      header h2 {
+        font-size: 1.5rem;
       }
     }
   </style>
 </head>
 <body>
 
-  <h2>Nombre de Empresa</h2>
+  <!-- ENCABEZADO CON LOGO -->
+  <header>
+  <div style="display: flex; align-items: center; width: 100%; position: relative;">
+    <!-- Logo alineado a la izquierda -->
+    <img src="/imagenes/logo.png" alt="Logo" class="logo" style="position: absolute; left: 0;" />
 
+    <!-- Título centrado -->
+    <h2 style="margin: 0 auto;">Nombre de Empresa</h2>
+  </div>
+</header>
+
+
+  <!-- TABS -->
   <div class="tabs">
     <div class="tab active" data-tab="futbol">Canchas de Fútbol</div>
     <div class="tab" data-tab="padel">Canchas de Pádel</div>
   </div>
 
-  <!-- Fútbol Section -->
+  <!-- SECCIONES -->
   <div id="futbol" class="content-section active">
-    <div class="grid-container" id="futbol-list">
-      <!-- Aquí las canchas de fútbol se generarán con JS -->
-    </div>
+    <div class="grid-container" id="futbol-list"></div>
   </div>
 
-  <!-- Pádel Section -->
   <div id="padel" class="content-section">
-    <div class="grid-container" id="padel-list">
-      <!-- Aquí las canchas de pádel se generarán con JS -->
-    </div>
+    <div class="grid-container" id="padel-list"></div>
   </div>
 
-  <!-- JS para Tabs y generación dinámica de canchas -->
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    &copy; 2025 Nombre de Empresa. Todos los derechos reservados.
+  </footer>
+
+  <!-- SCRIPT JS -->
   <script>
-    // Datos de canchas con varias imágenes para cada una
     const futbolCanchas = [
       {
         nombre: "Cancha Fútbol 1",
@@ -154,9 +197,9 @@
         ubicacion: "Ciudad Deportiva",
         superficie: "Césped sintético",
         imagenes: [
-          "OIP.webp",
-          "OIP2.webp",
-          "OIP3.webp"
+          "/Sistema/templates/imagenes/OIP.webp",
+          "/Sistema/templates/imagenes/OIP2.webp",
+          "/Sistema/templates/imagenes/OIP3.webp"
         ]
       },
       {
@@ -165,8 +208,8 @@
         ubicacion: "Complejo Norte",
         superficie: "Pasto natural",
         imagenes: [
-          "download.webp",
-          "download2.webp"
+          "/Sistema/templates/imagenes/download.webp",
+          "/Sistema/templates/imagenes/download2.webp"
         ]
       },
       {
@@ -175,7 +218,7 @@
         ubicacion: "Ciudad Deportiva",
         superficie: "Césped sintético",
         imagenes: [
-          "OIP (1).webp"
+          "/Sistema/templates/imagenes/OIP (1).webp"
         ]
       }
     ];
@@ -187,27 +230,23 @@
         ubicacion: "Club Pádel Central",
         superficie: "Césped azul",
         imagenes: [
-          "download (1).webp",
-          "download (2).webp"
+          "/Sistema/templates/imagenes/download (1).webp",
+          "/Sistema/templates/imagenes/download (2).webp"
         ]
       }
-      // Puedes agregar más canchas de pádel aquí
     ];
 
-    // Función para crear las tarjetas y agregarlas a un contenedor
     function renderCanchas(lista, contenedorId) {
       const contenedor = document.getElementById(contenedorId);
       lista.forEach(cancha => {
         const card = document.createElement("div");
         card.className = "card";
 
-        // Imagen principal
         const img = document.createElement("img");
-        img.src = cancha.imagenes[0]; 
+        img.src = cancha.imagenes[0];
         img.alt = cancha.nombre;
         card.appendChild(img);
 
-        // Contenido
         const cardContent = document.createElement("div");
         cardContent.className = "card-content";
 
@@ -216,11 +255,9 @@
           <p>Precio: $${cancha.precio}/hora</p>
         `;
 
-        // Botón reservar
         const btn = document.createElement("button");
         btn.textContent = "Reservar";
         btn.onclick = () => {
-          // Concatenar las imágenes codificadas por coma para la URL
           const imagenesStr = cancha.imagenes.map(url => encodeURIComponent(url)).join(",");
           const url = `reserva.html?nombre=${encodeURIComponent(cancha.nombre)}&precio=${encodeURIComponent(cancha.precio)}&imagenes=${imagenesStr}&ubicacion=${encodeURIComponent(cancha.ubicacion)}&superficie=${encodeURIComponent(cancha.superficie)}`;
           window.location.href = url;
@@ -232,11 +269,9 @@
       });
     }
 
-    // Renderizar las canchas al cargar la página
     renderCanchas(futbolCanchas, "futbol-list");
     renderCanchas(padelCanchas, "padel-list");
 
-    // Código de Tabs
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".content-section");
 
@@ -250,6 +285,5 @@
       });
     });
   </script>
-
 </body>
 </html>
