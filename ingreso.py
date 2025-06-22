@@ -1,16 +1,18 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask
+from flask_cors import CORS
 from datetime import datetime # Importacion de la libreria datetime para manejo de fechas y horas.
 import sqlite3 # Importacion de la libreria MySQL Connector
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5500", "https://codegenius-aktham.github.io"]}})
 
 
 # Conexion a la base de datos de usuario y reservas.
 def conexion_db():
     """Establece y devuelve una conexión a la base de datos SQLite."""
     try:
-        conn = sqlite3.connect(r"C:\Users\POWER\reservas_fp.db")
+        conn = sqlite3.connect("reservas_fp.db")
         return conn
     except sqlite3.Error as err:
         print(f"Error al conectar a la base de datos SQLite: {err}")
