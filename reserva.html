@@ -270,7 +270,7 @@
       });
 
       // Enviar usuario
-      fetch("http://localhost:5000/register", {
+      fetch("https://sistema-reserva-2.onrender.com/reservation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -287,7 +287,7 @@
         }
 
         // Enviar reserva
-        fetch("http://localhost:5000/reservation", {
+        fetch("https://sistema-reserva-2.onrender.com/reservation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
