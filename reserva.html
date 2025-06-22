@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reservar Cancha</title>
   <style>
-    * {
+      * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -143,9 +142,7 @@
   <div class="container">
     <!-- IZQUIERDA: Carrusel + info -->
     <div class="left-panel">
-      <div class="carousel" id="carousel">
-        <!-- Las imágenes se cargan dinámicamente -->
-      </div>
+      <div class="carousel" id="carousel"></div>
       <div class="cancha-info">
         <h3 id="cancha-nombre">Cargando...</h3>
         <p>Ubicación: <span id="cancha-ubicacion"></span></p>
@@ -185,45 +182,34 @@
           <p><strong>Fecha:</strong> <span id="fact-fecha"></span></p>
           <p><strong>Horas:</strong> <span id="fact-horas"></span></p>
           <p><strong>Total:</strong> $<span id="fact-total"></span></p>
-           <br>
-           <button type="submit">Enviar</button>
         </div>
-        
       </form>
     </div>
   </div>
 
   <script>
-    // Obtener parámetros de URL
     const params = new URLSearchParams(window.location.search);
-
     const canchaNombre = params.get("nombre") || "Cancha Desconocida";
     const canchaPrecio = parseFloat(params.get("precio")) || 30;
     const canchaUbicacion = params.get("ubicacion") || "No especificada";
     const canchaSuperficie = params.get("superficie") || "No especificada";
+    const canchaImgs = (params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1")
+                        .split(",").map(u => decodeURIComponent(u.trim()));
 
-    // Obtener la lista de imágenes separadas por coma
-    const canchaImgsParam = params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1";
-    // Decodificamos y luego separamos por coma para obtener un array
-    const canchaImgs = canchaImgsParam.split(",").map(url => decodeURIComponent(url.trim()));
-
-    // Mostrar datos cancha
     document.getElementById("cancha-nombre").textContent = canchaNombre;
     document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
     document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
     document.getElementById("cancha-superficie").textContent = canchaSuperficie;
 
-    // Crear carrusel con imágenes dinámicas
     const carousel = document.getElementById("carousel");
-    canchaImgs.forEach((url, index) => {
+    canchaImgs.forEach((url, i) => {
       const img = document.createElement("img");
       img.src = url;
-      img.alt = `Imagen ${index + 1} de ${canchaNombre}`;
-      if (index === 0) img.classList.add("active");
+      img.alt = `Imagen ${i + 1}`;
+      if (i === 0) img.classList.add("active");
       carousel.appendChild(img);
     });
 
-    // Carrusel automático solo si hay más de una imagen
     const images = carousel.querySelectorAll("img");
     if (images.length > 1) {
       let current = 0;
@@ -234,7 +220,6 @@
       }, 3000);
     }
 
-    // Manejo del formulario y factura
     const form = document.getElementById("reserva-form");
     const facturaDiv = document.getElementById("factura");
 
@@ -243,19 +228,19 @@
 
       const nombre = document.getElementById("nombre").value.trim();
       const apellido = document.getElementById("apellido").value.trim();
+      const cedula = document.getElementById("cedula").value.trim();
       const fecha = document.getElementById("fecha").value;
       const horaInicio = document.getElementById("horaInicio").value;
       const horaFin = document.getElementById("horaFin").value;
 
-      if (!nombre || !apellido || !fecha || !horaInicio || !horaFin) {
+      if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
         alert("Por favor completa todos los campos.");
         return;
       }
 
-      const inicio = parseInt(horaInicio.split(":")[0]);
-      const fin = parseInt(horaFin.split(":")[0]);
-
-      let horas = fin - inicio;
+      const horaIni = parseInt(horaInicio.split(":")[0]);
+      const horaTer = parseInt(horaFin.split(":")[0]);
+      const horas = horaTer - horaIni;
 
       if (horas <= 0) {
         alert("La hora de fin debe ser mayor que la de inicio.");
@@ -264,15 +249,67 @@
 
       const total = horas * canchaPrecio;
 
+      // Mostrar factura
       document.getElementById("fact-cancha").textContent = canchaNombre;
       document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
       document.getElementById("fact-fecha").textContent = fecha;
       document.getElementById("fact-horas").textContent = horas;
       document.getElementById("fact-total").textContent = total.toFixed(2);
-
       facturaDiv.style.display = "block";
+
+      // Imprimir factura en consola
+      console.log("📄 Factura generada:");
+      console.log({
+        cancha: canchaNombre,
+        cliente: `${nombre} ${apellido}`,
+        fecha: fecha,
+        horas: horas,
+        total: `$${total.toFixed(2)}`
+      });
+
+      // Enviar usuario
+      fetch("http://localhost:5000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre,
+          apellido: apellido,
+          cedula: cedula
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert("Error al registrar usuario: " + data.error);
+          return;
+        }
+
+        // Enviar reserva
+        fetch("http://localhost:5000/reservation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fecha: fecha,
+            hora: horaInicio,
+            termino: horaFin,
+            estado: "pendiente"
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert("Error al registrar reserva: " + data.error);
+          } else {
+            alert("Reserva registrada exitosamente.");
+          }
+        });
+      })
+      .catch(err => {
+        console.error("Error general:", err);
+        alert("Ocurrió un error al enviar los datos.");
+      });
     });
   </script>
-
+  </script>
 </body>
 </html>
