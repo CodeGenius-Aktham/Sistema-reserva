@@ -76,8 +76,6 @@ python-slugify==8.0.4
 pytube==15.0.0
 pytweening==1.2.0
 pytz==2025.1
-pywhatkit==5.4
-pywin32==310
 qrcode==8.0
 RapidFuzz==3.12.2
 redis==5.2.1
