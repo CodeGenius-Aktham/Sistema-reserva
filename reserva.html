@@ -190,127 +190,145 @@
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const canchaNombre = params.get("nombre") || "Cancha Desconocida";
-    const canchaPrecio = parseFloat(params.get("precio")) || 30;
-    const canchaUbicacion = params.get("ubicacion") || "No especificada";
-    const canchaSuperficie = params.get("superficie") || "No especificada";
-    const canchaImgs = (params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1")
-                        .split(",").map(u => decodeURIComponent(u.trim()));
+  const params = new URLSearchParams(window.location.search);
+  const canchaNombre = params.get("nombre") || "Cancha Desconocida";
+  const canchaPrecio = parseFloat(params.get("precio")) || 30;
+  const canchaUbicacion = params.get("ubicacion") || "No especificada";
+  const canchaSuperficie = params.get("superficie") || "No especificada";
+  const canchaImgs = (params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1")
+                      .split(",").map(u => decodeURIComponent(u.trim()));
 
-    document.getElementById("cancha-nombre").textContent = canchaNombre;
-    document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
-    document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
-    document.getElementById("cancha-superficie").textContent = canchaSuperficie;
+  document.getElementById("cancha-nombre").textContent = canchaNombre;
+  document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
+  document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
+  document.getElementById("cancha-superficie").textContent = canchaSuperficie;
 
-    const carousel = document.getElementById("carousel");
-    canchaImgs.forEach((url, i) => {
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = `Imagen ${i + 1}`;
-      if (i === 0) img.classList.add("active");
-      carousel.appendChild(img);
-    });
+  const carousel = document.getElementById("carousel");
+  canchaImgs.forEach((url, i) => {
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = `Imagen ${i + 1}`;
+    if (i === 0) img.classList.add("active");
+    carousel.appendChild(img);
+  });
 
-    const images = carousel.querySelectorAll("img");
-    if (images.length > 1) {
-      let current = 0;
-      setInterval(() => {
-        images[current].classList.remove("active");
-        current = (current + 1) % images.length;
-        images[current].classList.add("active");
-      }, 3000);
+  const images = carousel.querySelectorAll("img");
+  if (images.length > 1) {
+    let current = 0;
+    setInterval(() => {
+      images[current].classList.remove("active");
+      current = (current + 1) % images.length;
+      images[current].classList.add("active");
+    }, 3000);
+  }
+
+  const form = document.getElementById("reserva-form");
+  const facturaDiv = document.getElementById("factura");
+
+  // Manejar solo la generación de factura al hacer submit
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const cedula = document.getElementById("cedula").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const horaInicio = document.getElementById("horaInicio").value;
+    const horaFin = document.getElementById("horaFin").value;
+
+    if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
+      alert("Por favor completa todos los campos.");
+      return;
     }
 
-    const form = document.getElementById("reserva-form");
-    const facturaDiv = document.getElementById("factura");
+    const horaIni = parseInt(horaInicio.split(":")[0]);
+    const horaTer = parseInt(horaFin.split(":")[0]);
+    const horas = horaTer - horaIni;
 
-    <!-- 🔁 Lógica del envío del formulario -->
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
+    if (horas <= 0) {
+      alert("La hora de fin debe ser mayor que la de inicio.");
+      return;
+    }
 
-      const nombre = document.getElementById("nombre").value.trim();
-      const apellido = document.getElementById("apellido").value.trim();
-      const cedula = document.getElementById("cedula").value.trim();
-      const fecha = document.getElementById("fecha").value;
-      const horaInicio = document.getElementById("horaInicio").value;
-      const horaFin = document.getElementById("horaFin").value;
+    const total = horas * canchaPrecio;
 
-      if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
-        alert("Por favor completa todos los campos.");
+    // Mostrar factura (sin enviar datos todavía)
+    document.getElementById("fact-cancha").textContent = canchaNombre;
+    document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
+    document.getElementById("fact-fecha").textContent = fecha;
+    document.getElementById("fact-horas").textContent = horas;
+    document.getElementById("fact-total").textContent = total.toFixed(2);
+    facturaDiv.style.display = "block";
+
+    console.log("📄 Factura generada:");
+    console.log({
+      cancha: canchaNombre,
+      cliente: `${nombre} ${apellido}`,
+      fecha: fecha,
+      horas: horas,
+      total: `$${total.toFixed(2)}`
+    });
+  });
+
+  // Enviar datos al backend al hacer clic en "Enviar Factura"
+  facturaDiv.querySelector('button[type="submit"]').addEventListener("click", function(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const cedula = document.getElementById("cedula").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const horaInicio = document.getElementById("horaInicio").value;
+    const horaFin = document.getElementById("horaFin").value;
+
+    // Validación rápida extra (puede omitirse si ya se hizo en el submit)
+    if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
+    fetch("http://localhost:5000/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: nombre,
+        apellido: apellido,
+        cedula: cedula
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("Error al registrar usuario: " + data.error);
         return;
       }
 
-      const horaIni = parseInt(horaInicio.split(":")[0]);
-      const horaTer = parseInt(horaFin.split(":")[0]);
-      const horas = horaTer - horaIni;
-
-      if (horas <= 0) {
-        alert("La hora de fin debe ser mayor que la de inicio.");
-        return;
-      }
-
-      const total = horas * canchaPrecio;
-
-      // Mostrar factura antes de enviar
-      document.getElementById("fact-cancha").textContent = canchaNombre;
-      document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
-      document.getElementById("fact-fecha").textContent = fecha;
-      document.getElementById("fact-horas").textContent = horas;
-      document.getElementById("fact-total").textContent = total.toFixed(2);
-      facturaDiv.style.display = "block";
-
-      console.log("📄 Factura generada:");
-      console.log({
-        cancha: canchaNombre,
-        cliente: `${nombre} ${apellido}`,
-        fecha: fecha,
-        horas: horas,
-        total: `$${total.toFixed(2)}`
-      });
-
-      // Luego de mostrar la factura, enviar datos
-      fetch("http://localhost:5000/register", {
+      fetch("http://localhost:5000/reservation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre: nombre,
-          apellido: apellido,
-          cedula: cedula
+          fecha: fecha,
+          hora: horaInicio,
+          termino: horaFin,
+          estado: "pendiente"
         })
       })
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          alert("Error al registrar usuario: " + data.error);
-          return;
+          alert("Error al registrar reserva: " + data.error);
+        } else {
+          alert("Reserva registrada exitosamente.");
         }
-
-        fetch("http://localhost:5000/reservation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fecha: fecha,
-            hora: horaInicio,
-            termino: horaFin,
-            estado: "pendiente"
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            alert("Error al registrar reserva: " + data.error);
-          } else {
-            alert("Reserva registrada exitosamente.");
-          }
-        });
-      })
-      .catch(err => {
-        console.error("Error general:", err);
-        alert("Ocurrió un error al enviar los datos.");
       });
+    })
+    .catch(err => {
+      console.error("Error general:", err);
+      alert("Ocurrió un error al enviar los datos.");
     });
-  </script>
+  });
+</script>
+
 
 
 </body>
