@@ -95,10 +95,11 @@ def registro_reserva():
     if conn is None:
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
-    try:
-        usuario_id = int(usuario_id)
-    except ValueError:
+
+    usuario_id = data.get(usuario_id)
+    if not usuario_id:
         return jsonify({"error":"Falta el id del usuario" }),400
+    usuario_id = int(usuario_id)
 
     try:
         # Creacion del cursor para manejo de la base de datos.
