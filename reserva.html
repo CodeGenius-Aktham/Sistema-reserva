@@ -284,10 +284,8 @@ fetch("https://sistema-reserva-2.onrender.com/register", {
     return;
   }
 
-  const usuario_id = data.id; // <-- AQUÍ USAS EL ID REAL
-  localStorage.setItem('usuario_id', usuario_id); // (opcional)
+  const usuario_id = data.id; // ✅ Este es el ID que SÍ existe
 
-  // Enviar reserva
   fetch("https://sistema-reserva-2.onrender.com/reservation", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -310,7 +308,7 @@ fetch("https://sistema-reserva-2.onrender.com/register", {
 })
 .catch(err => {
   console.error("Error general:", err);
-  alert("Ocurrió un error al enviar los datos.");
+  alert("Ocurrió un error al enviar los datos.");
 });
 
   </script>
