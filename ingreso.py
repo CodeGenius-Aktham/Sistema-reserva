@@ -14,7 +14,7 @@ def conexion_db():
     try:
         conn = psycopg2.connect(
             host = "dpg-d1cpt6idbo4c73allepg-a.oregon-postgres.render.com",
-            dbname = "usuarios_2va",
+            dbname = "usuarios_2vaw",
             user = "usuarios_2vaw_user",
             password = "caXbkri7k5AzKOSrY4C2LX52uINHgINx",
             port = "5432",
