@@ -87,47 +87,80 @@
   </div>
 
   <script>
-    const precioHora = 30;
-    fetch("https://sistema-reserva-2.onrender.com/reservation")
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.querySelector("#tabla-reservas tbody");
-        let totalHoras = 0;
-        let totalDinero = 0;
-        let canchasOcupadas = 0;
+   const precioHora = 30;
+  fetch("https://sistema-reserva-2.onrender.com/show")
+    .then(res => res.json())
+    .then(data => {
+      const reservas = data.resultado;
+      const tbody = document.querySelector("#tabla-reservas tbody");
+      let totalHoras = 0;
+      let totalDinero = 0;
+      let canchasOcupadas = 0;
 
-        data.forEach(reserva => {
-          const tr = document.createElement("tr");
-          const cliente = reserva.usuario?.nombre ? `${reserva.usuario.nombre} ${reserva.usuario.apellido}` : "-";
-          const horaIni = parseInt(reserva.hora?.split(":"[0])) || 0;
-          const horaFin = parseInt(reserva.termino?.split(":"[0])) || 0;
-          const horas = Math.max(0, horaFin - horaIni);
+      reservas.forEach((reserva, index) => {
+        const tr = document.createElement("tr");
+        const cliente = `${reserva.nombre_usuario} ${reserva.apellido_usuario}`;
+        const horaIni = parseInt(reserva.hora_reserva?.split(":")[0]) || 0;
+        const horaFin = parseInt(reserva.hora_termino?.split(":")[0]) || 0;
+        const horas = Math.max(0, horaFin - horaIni);
 
-          totalHoras += horas;
-          totalDinero += horas * precioHora;
+        totalHoras += horas;
+        totalDinero += horas * precioHora;
 
-          if (["pendiente", "ocupado"].includes(reserva.estado)) {
-            canchasOcupadas++;
-          }
+        if (["pendiente", "ocupado"].includes(reserva.estado_reserva)) {
+          canchasOcupadas++;
+        }
 
-          tr.innerHTML = `
-            <td>${cliente}</td>
-            <td>${reserva.fecha}</td>
-            <td>${reserva.hora}</td>
-            <td>${reserva.termino}</td>
-            <td>${reserva.estado}</td>
-          `;
-          tbody.appendChild(tr);
-        });
+        tr.innerHTML = `
+          <td>${cliente}</td>
+          <td>${reserva.fecha_reserva}</td>
+          <td>${reserva.hora_reserva}</td>
+          <td>${reserva.hora_termino}</td>
+          <td>${reserva.estado_reserva}</td>
+          <td><button data-id="${reserva.cedula_usuario}" class="eliminar-btn">🗑️</button></td>
+        `;
 
-        document.getElementById("horas-totales").textContent = totalHoras;
-        document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
-        document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
-      })
-      .catch(err => {
-        console.error("Error al obtener reservas:", err);
-        alert("No se pudieron cargar las reservas.");
+        tbody.appendChild(tr);
       });
+
+      document.getElementById("horas-totales").textContent = totalHoras;
+      document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
+      document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
+
+      // Agrega eventos a los botones
+      document.querySelectorAll(".eliminar-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          const userId = button.getAttribute("data-id");
+
+          if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
+
+          fetch("https://sistema-reserva-2.onrender.com/delete", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ eliminar: userId })
+          })
+            .then(res => res.json())
+            .then(resp => {
+              if (resp.mensaje) {
+                alert("Usuario eliminado correctamente.");
+                button.closest("tr").remove();
+              } else {
+                alert("Error: " + (resp.error || "No se pudo eliminar."));
+              }
+            })
+            .catch(err => {
+              console.error("Error eliminando:", err);
+              alert("Hubo un error al eliminar.");
+            });
+        });
+      });
+    })
+    .catch(err => {
+      console.error("Error al obtener reservas:", err);
+      alert("No se pudieron cargar las reservas.");
+    });
   </script>
 
 </body>
