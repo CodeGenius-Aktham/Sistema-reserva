@@ -190,98 +190,138 @@
   </div>
 
   <script>
-    form.addEventListener("submit", function(e) {
-  e.preventDefault();
+  const params = new URLSearchParams(window.location.search);
+  const canchaNombre = params.get("nombre") || "Cancha Desconocida";
+  const canchaPrecio = parseFloat(params.get("precio")) || 30;
+  const canchaUbicacion = params.get("ubicacion") || "No especificada";
+  const canchaSuperficie = params.get("superficie") || "No especificada";
+  const canchaImgs = (params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1")
+                      .split(",").map(u => decodeURIComponent(u.trim()));
 
-  const nombre = document.getElementById("nombre").value.trim();
-  const apellido = document.getElementById("apellido").value.trim();
-  const cedula = document.getElementById("cedula").value.trim();
-  const fecha = document.getElementById("fecha").value;
-  const horaInicio = document.getElementById("horaInicio").value;
-  const horaFin = document.getElementById("horaFin").value;
+  document.getElementById("cancha-nombre").textContent = canchaNombre;
+  document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
+  document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
+  document.getElementById("cancha-superficie").textContent = canchaSuperficie;
 
-  if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
-    alert("Por favor completa todos los campos.");
-    return;
-  }
-
-  const horaIni = parseInt(horaInicio.split(":")[0], 10);
-  const horaTer = parseInt(horaFin.split(":")[0], 10);
-  if (isNaN(horaIni) || isNaN(horaTer) || horaTer <= horaIni) {
-    alert("La hora de fin debe ser mayor que la de inicio y estar en formato válido.");
-    return;
-  }
-
-  const horas = horaTer - horaIni;
-  const total = horas * canchaPrecio;
-
-  // Mostrar factura
-  document.getElementById("fact-cancha").textContent = canchaNombre;
-  document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
-  document.getElementById("fact-fecha").textContent = fecha;
-  document.getElementById("fact-horas").textContent = horas;
-  document.getElementById("fact-total").textContent = total.toFixed(2);
-  facturaDiv.style.display = "block";
-
-  console.log("📄 Factura generada:", {
-    cancha: canchaNombre,
-    cliente: `${nombre} ${apellido}`,
-    fecha,
-    horas,
-    total: `$${total.toFixed(2)}`
+  const carousel = document.getElementById("carousel");
+  canchaImgs.forEach((url, i) => {
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = `Imagen ${i + 1}`;
+    if (i === 0) img.classList.add("active");
+    carousel.appendChild(img);
   });
 
-  // Registrar usuario
-  fetch("https://sistema-reserva-2.onrender.com/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, apellido, cedula })
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Error en el registro de usuario.");
-    return res.json();
-  })
-  .then(data => {
-    if (data.error) {
-      alert("Error al registrar usuario: " + data.error);
+  const images = carousel.querySelectorAll("img");
+  if (images.length > 1) {
+    let current = 0;
+    setInterval(() => {
+      images[current].classList.remove("active");
+      current = (current + 1) % images.length;
+      images[current].classList.add("active");
+    }, 3000);
+  }
+
+  const form = document.getElementById("reserva-form");
+  const facturaDiv = document.getElementById("factura");
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const cedula = document.getElementById("cedula").value.trim();
+    const fecha = document.getElementById("fecha").value;
+    const horaInicio = document.getElementById("horaInicio").value;
+    const horaFin = document.getElementById("horaFin").value;
+
+    if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
+      alert("Por favor completa todos los campos.");
       return;
     }
 
-    const usuario_id = data.id;
-    // Opcional: guardar en localStorage
-    // localStorage.setItem("usuario_id", usuario_id);
+    const horaIni = parseInt(horaInicio.split(":")[0]);
+    const horaTer = parseInt(horaFin.split(":")[0]);
+    const horas = horaTer - horaIni;
 
-    // Enviar reserva
-    return fetch("https://sistema-reserva-2.onrender.com/reservation", {
+    if (isNaN(horaIni) || isNaN(horaTer) || horas <= 0) {
+      alert("La hora de fin debe ser mayor que la de inicio.");
+      return;
+    }
+
+    const total = horas * canchaPrecio;
+
+    // Mostrar factura
+    document.getElementById("fact-cancha").textContent = canchaNombre;
+    document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
+    document.getElementById("fact-fecha").textContent = fecha;
+    document.getElementById("fact-horas").textContent = horas;
+    document.getElementById("fact-total").textContent = total.toFixed(2);
+    facturaDiv.style.display = "block";
+
+    // Imprimir factura en consola
+    console.log("📄 Factura generada:", {
+      cancha: canchaNombre,
+      cliente: `${nombre} ${apellido}`,
+      fecha: fecha,
+      horas: horas,
+      total: `$${total.toFixed(2)}`
+    });
+
+    // Registrar usuario
+    fetch("https://sistema-reserva-2.onrender.com/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        fecha,
-        hora: horaInicio,
-        termino: horaFin,
-        estado: "pendiente",
-        usuario_id
+        nombre: nombre,
+        apellido: apellido,
+        cedula: cedula
       })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("Error al registrar usuario: " + data.error);
+        return;
+      }
+
+      const usuario_id = data.id; // ✅ ID real retornado del backend
+      if (!usuario_id) {
+        alert("No se recibió ID de usuario válido.");
+        return;
+      }
+
+      // Enviar reserva con el ID del usuario registrado
+      fetch("https://sistema-reserva-2.onrender.com/reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fecha: fecha,
+          hora: horaInicio,
+          termino: horaFin,
+          estado: "pendiente",
+          usuario_id: usuario_id
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert("Error al registrar reserva: " + data.error);
+        } else {
+          alert("✅ Reserva registrada exitosamente.");
+        }
+      })
+      .catch(err => {
+        console.error("Error al registrar reserva:", err);
+        alert("Ocurrió un error al registrar la reserva.");
+      });
+    })
+    .catch(err => {
+      console.error("Error al registrar usuario:", err);
+      alert("Ocurrió un error al registrar el usuario.");
     });
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Error al registrar reserva.");
-    return res.json();
-  })
-  .then(data => {
-    if (data?.error) {
-      alert("Error al registrar reserva: " + data.error);
-    } else {
-      alert("Reserva registrada exitosamente.");
-    }
-  })
-  .catch(err => {
-    console.error("Error general:", err);
-    alert("Ocurrió un error al enviar los datos.");
   });
-});
+</script>
 
-
-  </script>
 </body>
 </html>
