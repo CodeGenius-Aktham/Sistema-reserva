@@ -21,7 +21,7 @@ def conexion_db():
             sslmode = "require"
         )
         return conn
-    except IntegrityError.Error as err:
+    except IntegrityError as err:
         conn.rollback()
         print(f"Error al conectar a la base de datos SQLite: {err}")
         return None
