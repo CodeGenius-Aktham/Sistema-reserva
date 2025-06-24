@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask
 from flask_cors import CORS
-from datetime import datetime # Importacion de la libreria datetime para manejo de fechas y horas.
-import sqlite3 # Importacion de la libreria MySQL Connector
+from psycopg2 import IntegrityError # Importacion de la libreria postgresql Connector
+import psycopg2
+
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
@@ -11,9 +12,16 @@ CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=Tr
 def conexion_db():
     """Establece y devuelve una conexión a la base de datos SQLite."""
     try:
-        conn = sqlite3.connect("reservas_fp.db")
+        conn = psycopg2.connect(
+            host = "dpg-d1cpt6idbo4c73allepg-a.oregon-postgres.render.com",
+            dbname = "usuarios_2va",
+            user = "usuarios_2vaw_user",
+            password = "caXbkri7k5AzKOSrY4C2LX52uINHgINx",
+            port = "5432",
+            sslmode = "require"
+        )
         return conn
-    except sqlite3.Error as err:
+    except IntegrityError.Error as err:
         print(f"Error al conectar a la base de datos SQLite: {err}")
         return None
 
@@ -44,22 +52,24 @@ def registro_usuario():
         # Ingreso de datos a la base de datos. (Usando ? para SQLite y backticks para la tabla)
         cursor.execute('''
             INSERT INTO usuarios(nombre_usuario, apellido_usuario, cedula_usuario)
-            VALUES (?,?,?)
+            VALUES (%s,%s,%s)
+            RETURNING id
         ''', (nombre_usuario, apellido_usuario, cedula_usuario))
+        nuevo_id = cursor.fetchone()[0]
         # Se suben los cambios a la base de datos.
         conn.commit()
-        return jsonify({"mensaje": "Usuario ingresado con éxito.", "id": cursor.lastrowid}), 201 # Devuelve el ID generado
+        return jsonify({"mensaje": "Usuario ingresado con éxito.", "id": nuevo_id}), 201 # Devuelve el ID generado
     # Manejo de errores por si la cedula se repite.
-    except sqlite3.Error as error:
+    except psycopg2.errors.UniqueViolation:
         # El mensaje de error de MySQL será diferente. Ajusta la comprobación.
-        if "UNIQUE constraint failed: usuarios.cedula_usuario" in str(error):
-            return jsonify({"error": "La cédula ya está registrada."}), 400
-        return jsonify({"error": f"Error de integridad: {str(error)}"}), 400
+        conn.rollback()
+        return jsonify({"error": "La cédula ya está registrada."}), 400
     # Si se presenta un error en el programa se marca en el manejo de errores.
     except Exception as error:
         return jsonify({"error": f"Error inesperado en el programa: {str(error)}."}), 500
     finally:
-        conn.close() # Cierre de la base de datos.
+        cursor.close() # Cierre de la base de datos.
+        conn.close()
 
 
 # Ingreso y enrutador de las reservas.
@@ -83,26 +93,32 @@ def registro_reserva():
     conn = conexion_db()
     if conn is None:
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
+    
+    try:
+        usuario_id = int(usuario_id)
+    except ValueError:
+        return jsonify({"error":"Falta el id del usuario" }),400
 
     try:
         # Creacion del cursor para manejo de la base de datos.
         cursor = conn.cursor()
+        usuario_id = data.get('usuario_id')
         # Ingreso de la informacion a la base de datos.
         cursor.execute('''
-            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva)
-            VALUES(?,?,?,?)
-        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva))
+            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id)
+            VALUES(%s,%s,%s,%s,%s)
+        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id))
         # Se suben los cambios a la base de datos.
         conn.commit()
         return jsonify({"mensaje": "reserva ingresada con exito."}), 200
-    except sqlite3.IntegrityError as error:
-        if "UNIQUE constraint failed: reservas.fecha_reserva, reservas.hora_reserva" in str(error):
+    except psycopg2.errors.UniqueViolation:
+            conn.rollback()
             return jsonify({"error": "Ya existe una reserva para esa fecha y hora."}), 400
-        return jsonify({"error": "error de integridad"}), 400
     except Exception as error:
         return jsonify({"error": f"error inesperado en el programa : {str(error)}"}), 500
     finally:
-        conn.close() # Se cierra la base de datos.
+        cursor.close() # Se cierra la base de datos.
+        conn.close()
 
 
 
