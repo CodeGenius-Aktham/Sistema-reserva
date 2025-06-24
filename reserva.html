@@ -285,7 +285,7 @@
           alert("Error al registrar usuario: " + data.error);
           return;
         }
-
+        const usuario_id = 1;
         // Enviar reserva
         fetch("https://sistema-reserva-2.onrender.com/reservation", {
           method: "POST",
