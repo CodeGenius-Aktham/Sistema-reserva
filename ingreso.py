@@ -96,7 +96,7 @@ def registro_reserva():
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
 
-    usuario_id = data.get(usuario_id)
+    usuario_id = data.get('usuario_id')
     if not usuario_id:
         return jsonify({"error":"Falta el id del usuario" }),400
     usuario_id = int(usuario_id)
