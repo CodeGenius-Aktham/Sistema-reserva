@@ -1,15 +1,30 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask
-import sqlite3 # Importacion de la libreria SQLite3 para manejo de la base de datos.
+from flask_cors import CORS
+from psycopg2 import IntegrityError # Importacion de la libreria SQLite3 para manejo de la base de datos.
+import psycopg2
 import pandas as pd # Importacion de pandas para visualizar los datos.
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
+CORS(app, origins="https://codegenius-aktham.github.io/Sistema-reserva/boss.html", supports_credentials=True)
 
 # Conexion con la base de datos.
 def conexion_db():
-    conn = sqlite3.connect(r"C:\Users\POWER\reservas_fp.db") # Conexion en la base de datos
-    conn.row_factory = sqlite3.Row 
-    return conn
+    """Establece y devuelve una conexión a la base de datos SQLite."""
+    try:
+        conn = psycopg2.connect(
+            host = "dpg-d1cpt6idbo4c73allepg-a.oregon-postgres.render.com",
+            dbname = "usuarios_2vaw",
+            user = "usuarios_2vaw_user",
+            password = "caXbkri7k5AzKOSrY4C2LX52uINHgINx",
+            port = "5432",
+            sslmode = "require"
+        )
+        return conn
+    except IntegrityError as err:
+        conn.rollback()
+        print(f"Error al conectar a la base de datos SQLite: {err}")
+        return None
 
 # Ingreso y enrutador para eliminacion de usuarios.
 @app.route('/delete', methods = ["POST"])
@@ -31,22 +46,23 @@ def eliminar_datos():
     try:
         cursor = conn.cursor() # Cursor para manejo de la base de datos.
         # Consulta para la busqueda del usuario y consultar si se encuntra o no.
-        cursor.execute('''SELECT * FROM usuarios WHERE user_id = ?''',(eliminar_usuario,))
+        cursor.execute('''SELECT * FROM usuarios WHERE user_id = %''',(eliminar_usuario,))
         if cursor.fetchone() is None:
             return jsonify({"error" : "Usuario no encontrado."}),400
         # Eliminacion de datos tanto en la reserva como en la tabla de registro.
-        cursor.execute('''DELETE FROM reservas WHERE user_id = ?''',(eliminar_usuario,))
-        cursor.execute('''DELETE FROM usuarios Where user_id = ?''',(eliminar_usuario,))
+        cursor.execute('''DELETE FROM reservas WHERE id = ?''',(eliminar_usuario,))
         # Se suben los cambios.
         conn.commit()
-        return jsonify({"mensaje" : "Usuario y reservar eliminado con exito."}),200
+        return jsonify({"mensaje" : "Usuario y reserva eliminado con exito."}),200
 
     # Manejo de errores.
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
+        conn.rollback()
         return jsonify({"error" : "Error de integridad al eliminar los datos.."}),400
     except Exception as error:
         return jsonify({"error" : f"Se detecto un error inesperado : {str(error)}"}),400
     finally:
+        cursor.close()
         conn.close() # Cierre de la base de datos.
 
 
@@ -69,7 +85,8 @@ def visualizar_datos():
                     reservas.hora_termino,
                     reservas.estado_reserva
                 FROM usuarios
-                JOIN reservas ON usuarios.user_id = reservas.user_id
+                JOIN reservas ON usuarios.id = reservas.usuario_id
+                ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
         # Resultado del lector y conversion a una archivo Json.
         resultado = df.to_dict(orient='records')
