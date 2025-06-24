@@ -268,51 +268,51 @@
         horas: horas,
         total: `$${total.toFixed(2)}`
       });
+fetch("https://sistema-reserva-2.onrender.com/register", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    nombre: nombre,
+    apellido: apellido,
+    cedula: cedula
+  })
+})
+.then(res => res.json())
+.then(data => {
+  if (data.error) {
+    alert("Error al registrar usuario: " + data.error);
+    return;
+  }
 
-      // Enviar usuario
-      fetch("https://sistema-reserva-2.onrender.com/register ", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre: nombre,
-          apellido: apellido,
-          cedula: cedula
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          alert("Error al registrar usuario: " + data.error);
-          return;
-        }
-        const usuario_id = 1;
-        // Enviar reserva
-        fetch("https://sistema-reserva-2.onrender.com/reservation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fecha: fecha,
-            hora: horaInicio,
-            termino: horaFin,
-            estado: "pendiente",
-            usuario_id: usuario_id
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            alert("Error al registrar reserva: " + data.error);
-          } else {
-            alert("Reserva registrada exitosamente.");
-          }
-        });
-      })
-      .catch(err => {
-        console.error("Error general:", err);
-        alert("Ocurrió un error al enviar los datos.");
-      });
-    });
-  </script>
+  const usuario_id = data.id; // <-- AQUÍ USAS EL ID REAL
+  localStorage.setItem('usuario_id', usuario_id); // (opcional)
+
+  // Enviar reserva
+  fetch("https://sistema-reserva-2.onrender.com/reservation", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fecha: fecha,
+      hora: horaInicio,
+      termino: horaFin,
+      estado: "pendiente",
+      usuario_id: usuario_id
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert("Error al registrar reserva: " + data.error);
+    } else {
+      alert("Reserva registrada exitosamente.");
+    }
+  });
+})
+.catch(err => {
+  console.error("Error general:", err);
+  alert("Ocurrió un error al enviar los datos.");
+});
+
   </script>
 </body>
 </html>
