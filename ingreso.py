@@ -26,6 +26,7 @@ def conexion_db():
         print(f"Error al conectar a la base de datos SQLite: {err}")
         return None
 
+
 # Ingreso y enrutador del registro.
 @app.route('/register', methods=['POST'])
 def registro_usuario():
