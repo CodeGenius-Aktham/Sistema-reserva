@@ -46,11 +46,12 @@ def eliminar_datos():
     try:
         cursor = conn.cursor() # Cursor para manejo de la base de datos.
         # Consulta para la busqueda del usuario y consultar si se encuntra o no.
-        cursor.execute('''SELECT * FROM usuarios WHERE user_id = %''',(eliminar_usuario,))
+        cursor.execute('''SELECT * FROM usuarios WHERE user_id = %s''',(eliminar_usuario,))
         if cursor.fetchone() is None:
             return jsonify({"error" : "Usuario no encontrado."}),400
         # Eliminacion de datos tanto en la reserva como en la tabla de registro.
-        cursor.execute('''DELETE FROM reservas WHERE id = ?''',(eliminar_usuario,))
+        cursor.execute('''DELETE FROM reservas WHERE id = %s''',(eliminar_usuario,))
+        cursor.execute('''DELETE FROM usuarios WHERE id = %s''', (eliminar_usuario,))
         # Se suben los cambios.
         conn.commit()
         return jsonify({"mensaje" : "Usuario y reserva eliminado con exito."}),200
