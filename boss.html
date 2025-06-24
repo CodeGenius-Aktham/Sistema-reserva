@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel del Administrador</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e7ecf3;
+      display: flex;
+      min-height: 100vh;
+      padding: 30px;
+      gap: 20px;
+      backdrop-filter: blur(10px);
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 20px;
+      color: #333;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .glass-panel:hover {
+      transform: scale(1.01);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    th {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .summary {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-panel" style="flex: 2;">
+    <h2>Reservas</h2>
+    <table id="tabla-reservas">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="glass-panel" style="max-width: 350px;">
+    <h2>Resumen</h2>
+    <div class="summary">
+      <p><strong>Horas Totales:</strong> <span id="horas-totales">0</span></p>
+      <p><strong>Dinero Total:</strong> $<span id="dinero-total">0.00</span></p>
+      <p><strong>Canchas Ocupadas:</strong> <span id="canchas-ocupadas">0</span></p>
+    </div>
+  </div>
+
+  <script>
+    const precioHora = 30;
+    fetch("https://sistema-reserva-2.onrender.com/reservation")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#tabla-reservas tbody");
+        let totalHoras = 0;
+        let totalDinero = 0;
+        let canchasOcupadas = 0;
+
+        data.forEach(reserva => {
+          const tr = document.createElement("tr");
+          const cliente = reserva.usuario?.nombre ? `${reserva.usuario.nombre} ${reserva.usuario.apellido}` : "-";
+          const horaIni = parseInt(reserva.hora?.split(":"[0])) || 0;
+          const horaFin = parseInt(reserva.termino?.split(":"[0])) || 0;
+          const horas = Math.max(0, horaFin - horaIni);
+
+          totalHoras += horas;
+          totalDinero += horas * precioHora;
+
+          if (["pendiente", "ocupado"].includes(reserva.estado)) {
+            canchasOcupadas++;
+          }
+
+          tr.innerHTML = `
+            <td>${cliente}</td>
+            <td>${reserva.fecha}</td>
+            <td>${reserva.hora}</td>
+            <td>${reserva.termino}</td>
+            <td>${reserva.estado}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById("horas-totales").textContent = totalHoras;
+        document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
+        document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
+      })
+      .catch(err => {
+        console.error("Error al obtener reservas:", err);
+        alert("No se pudieron cargar las reservas.");
+      });
+  </script>
+
+</body>
+</html>
