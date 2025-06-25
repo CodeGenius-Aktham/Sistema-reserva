@@ -67,10 +67,12 @@
       <thead>
         <tr>
           <th>Cliente</th>
+          <th>Cédula</th>
           <th>Fecha</th>
           <th>Inicio</th>
           <th>Fin</th>
           <th>Estado</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -86,14 +88,13 @@
     </div>
   </div>
 
-
 <script>
   const precioHora = 30;
 
   fetch("https://525b-190-24-66-235.ngrok-free.app/show")
     .then(res => res.json())
     .then(data => {
-      console.log("Respuesta del servidor:", data); // ← Te ayudará a depurar
+      console.log("Respuesta del servidor:", data);
 
       const reservas = data.resultado;
 
@@ -124,6 +125,7 @@
 
         tr.innerHTML = `
           <td>${cliente}</td>
+          <td>${reserva.cedula_usuario}</td>
           <td>${reserva.fecha_reserva}</td>
           <td>${reserva.hora_reserva}</td>
           <td>${reserva.hora_termino}</td>
@@ -138,7 +140,6 @@
       document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
       document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
 
-      // Agrega eventos a los botones
       document.querySelectorAll(".eliminar-btn").forEach(button => {
         button.addEventListener("click", () => {
           const userId = button.getAttribute("data-id");
@@ -173,7 +174,6 @@
       alert("No se pudieron cargar las reservas.");
     });
 </script>
-
 
 </body>
 </html>
