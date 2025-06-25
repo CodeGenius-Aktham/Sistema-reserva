@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify # Importacion de la libreria Flask
 from flask_cors import CORS
 from psycopg2 import IntegrityError # Importacion de la libreria SQLite3 para manejo de la base de datos.
 import psycopg2
+import datetime
 import pandas as pd # Importacion de pandas para visualizar los datos.
 
 # Identificador de la pagina para el jefe de la aplicacion.
@@ -91,7 +92,7 @@ def visualizar_datos():
                 ''',conn)
         for columna in ["fecha_reserva","hora_reserva","hora termino"]:
             if columna in df.columns:
-                df[columna] = df[columna].astype(str)
+                df[columna] = df[columna].apply(lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time) else str(x))
         # Resultado del lector y conversion a una archivo Json.
         resultado = df.to_dict(orient='records')
         # Retorno de los resultados de las tablas.
