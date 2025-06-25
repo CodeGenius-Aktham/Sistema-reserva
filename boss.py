@@ -6,7 +6,7 @@ import pandas as pd # Importacion de pandas para visualizar los datos.
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
-
+CORS(app, origins=["https://codegenius-aktham.github.io"])
 
 # Conexion con la base de datos.
 def conexion_db():
