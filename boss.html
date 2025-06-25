@@ -86,20 +86,30 @@
     </div>
   </div>
 
-  <script>
-   const precioHora = 30;
+
+<script>
+  const precioHora = 30;
+
   fetch("http://127.0.0.1:5000/show")
     .then(res => res.json())
     .then(data => {
       const reservas = data.resultado;
+
+      if (!Array.isArray(reservas)) {
+        console.error("El campo 'resultado' no es un array:", reservas);
+        alert("Error: la respuesta del servidor no tiene el formato esperado.");
+        return;
+      }
+
       const tbody = document.querySelector("#tabla-reservas tbody");
       let totalHoras = 0;
       let totalDinero = 0;
       let canchasOcupadas = 0;
 
-      reservas.forEach((reserva, index) => {
+      reservas.forEach((reserva) => {
         const tr = document.createElement("tr");
-        const cliente = `${reserva.nombre_usuario} ${reserva.apellido_usuario}`;
+
+        const cliente = `${reserva.nombre_usuario || '-'} ${reserva.apellido_usuario || '-'}`;
         const horaIni = parseInt(reserva.hora_reserva?.split(":")[0]) || 0;
         const horaFin = parseInt(reserva.hora_termino?.split(":")[0]) || 0;
         const horas = Math.max(0, horaFin - horaIni);
@@ -113,28 +123,29 @@
 
         tr.innerHTML = `
           <td>${cliente}</td>
-          <td>${reserva.fecha_reserva}</td>
-          <td>${reserva.hora_reserva}</td>
-          <td>${reserva.hora_termino}</td>
-          <td>${reserva.estado_reserva}</td>
+          <td>${reserva.fecha_reserva || '-'}</td>
+          <td>${reserva.hora_reserva || '-'}</td>
+          <td>${reserva.hora_termino || '-'}</td>
+          <td>${reserva.estado_reserva || '-'}</td>
           <td><button data-id="${reserva.cedula_usuario}" class="eliminar-btn">🗑️</button></td>
         `;
 
         tbody.appendChild(tr);
       });
 
+      // Mostrar los totales
       document.getElementById("horas-totales").textContent = totalHoras;
       document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
       document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
 
-      // Agrega eventos a los botones
+      // Evento de eliminación
       document.querySelectorAll(".eliminar-btn").forEach(button => {
         button.addEventListener("click", () => {
           const userId = button.getAttribute("data-id");
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("https://127.0.0.1:5000/delete", {
+          fetch("http://127.0.0.1:5000/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -161,7 +172,8 @@
       console.error("Error al obtener reservas:", err);
       alert("No se pudieron cargar las reservas.");
     });
-  </script>
+</script>
+
 
 </body>
 </html>
