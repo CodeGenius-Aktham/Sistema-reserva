@@ -145,7 +145,7 @@
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("https://127.0.0.1:5000/delete", {
+          fetch("http://127.0.0.1:5000/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
