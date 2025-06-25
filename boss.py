@@ -90,7 +90,8 @@ def visualizar_datos():
                 JOIN reservas ON usuarios.id = reservas.usuario_id
                 ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
-        for columna in ["fecha_reserva","hora_reserva","hora termino"]:
+        # Conversión segura de campos de tipo tiempo o fecha
+        for columna in ["fecha_reserva", "hora_reserva", "hora_termino"]:
             if columna in df.columns:
                 df[columna] = df[columna].apply(
                     lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time)
