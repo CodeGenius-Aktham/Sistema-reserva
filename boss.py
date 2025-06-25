@@ -89,6 +89,10 @@ def visualizar_datos():
                 JOIN reservas ON usuarios.id = reservas.usuario_id
                 ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
+        columnas_convertir = ["fecha_reserva","hora_reserva","hora termino"]
+        for columna in columnas_convertir:
+            if columna in df.columns:
+                df[columna] = df[columna].astype(str)
         # Resultado del lector y conversion a una archivo Json.
         resultado = df.to_dict(orient='records')
         # Retorno de los resultados de las tablas.
