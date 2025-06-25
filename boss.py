@@ -92,7 +92,10 @@ def visualizar_datos():
                 ''',conn)
         for columna in ["fecha_reserva","hora_reserva","hora termino"]:
             if columna in df.columns:
-                df[columna] = df[columna].apply(lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time) else str(x))
+                df[columna] = df[columna].apply(
+                    lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time)
+                    else (x.strftime("%Y-%m-%d") if isinstance(x, datetime.date) else str(x))
+                )
         # Resultado del lector y conversion a una archivo Json.
         resultado = df.to_dict(orient='records')
         # Retorno de los resultados de las tablas.
