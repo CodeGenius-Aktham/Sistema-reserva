@@ -71,12 +71,13 @@ def eliminar_datos():
 @app.route('/show', methods = ["GET"])
 def visualizar_datos():
     conn = conexion_db() # Recibe la conexion con la base de datos.
+    cursor = conn.cursor()
     if conn is None:
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
     try:
         # Lector de la query en SQL
-        df = pd.read_sql_query('''
+        cursor.execute('''
                 SELECT
                     usuarios.nombre_usuario,
                     usuarios.apellido_usuario,
@@ -88,9 +89,11 @@ def visualizar_datos():
                 FROM usuarios
                 JOIN reservas ON usuarios.id = reservas.usuario_id
                 ORDER BY reservas.fecha_reserva DESC;
-                ''',conn)
+                ''')
         # Resultado del lector y conversion a una archivo Json.
-        resultado = df.to_dict(orient='records')
+        columnas = [desc[0] for desc in cursor.description]
+        filas =cursor.fetchall()
+        resultado = [dict(zip(columnas, fila)) for fila in filas]
         # Retorno de los resultados de las tablas.
         return jsonify({"resultado" : resultado}),200
     # Manejo de errores.
