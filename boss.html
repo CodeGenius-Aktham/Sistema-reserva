@@ -72,7 +72,6 @@
           <th>Inicio</th>
           <th>Fin</th>
           <th>Estado</th>
-          <th>Acción</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -91,7 +90,7 @@
 <script>
   const precioHora = 30;
 
-  fetch("https://525b-190-24-66-235.ngrok-free.app/show")
+  fetch("https://db81-190-24-66-235.ngrok-free.app/register")
     .then(res => res.json())
     .then(data => {
       console.log("Respuesta del servidor:", data);
@@ -146,7 +145,7 @@
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("https://525b-190-24-66-235.ngrok-free.app/delete", {
+          fetch("https://db81-190-24-66-235.ngrok-free.app/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
