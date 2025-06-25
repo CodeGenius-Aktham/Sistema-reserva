@@ -91,22 +91,16 @@
   const precioHora = 30;
 
   fetch("https://9b16-190-24-66-235.ngrok-free.app/show")
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      console.log("Respuesta del servidor:", data);
-      window.reservasData = data; // Para depuración manual
+  .then(res => res.json())
+  .then(data => {
+    console.log("Respuesta del servidor:", data);
+    const reservas = data.resultado;
 
-      const reservas = data.resultado;
-
-      if (!Array.isArray(reservas)) {
-        console.error("El campo 'resultado' no es un array:", reservas);
-        alert("Error: la respuesta del servidor no tiene el formato esperado.");
-        return;
-      }
-
+    if (!Array.isArray(reservas)) {
+      console.error("El campo 'resultado' no es un array:", reservas);
+      alert("Error: la respuesta del servidor no tiene el formato esperado.");
+      return;
+    }
       if (reservas.length === 0) {
         alert("No hay reservas registradas.");
         return;
@@ -158,13 +152,17 @@
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("https://db81-190-24-66-235.ngrok-free.app/delete", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ eliminar: userId })
-          })
+        fetch("https://9b16-190-24-66-235.ngrok-free.app/delete")
+  .then(res => res.json())
+  .then(data => {
+    console.log("Respuesta del servidor:", data);
+    const reservas = data.resultado;
+
+    if (!Array.isArray(reservas)) {
+      console.error("El campo 'resultado' no es un array:", reservas);
+      alert("Error: la respuesta del servidor no tiene el formato esperado.");
+      return;
+    }
             .then(res => res.json())
             .then(resp => {
               if (resp.mensaje) {
