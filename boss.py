@@ -2,11 +2,11 @@ from flask import Flask, request, jsonify # Importacion de la libreria Flask
 from flask_cors import CORS
 from psycopg2 import IntegrityError # Importacion de la libreria SQLite3 para manejo de la base de datos.
 import psycopg2
-
+import pandas as pd # Importacion de pandas para visualizar los datos.
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
-CORS(app, origins="https://codegenius-aktham.github.io/Sistema-reserva/boss.html", supports_credentials=True)
+
 
 # Conexion con la base de datos.
 def conexion_db():
@@ -71,13 +71,12 @@ def eliminar_datos():
 @app.route('/show', methods = ["GET"])
 def visualizar_datos():
     conn = conexion_db() # Recibe la conexion con la base de datos.
-    cursor = conn.cursor()
     if conn is None:
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
     try:
         # Lector de la query en SQL
-        cursor.execute('''
+        df = pd.read_sql_query('''
                 SELECT
                     usuarios.nombre_usuario,
                     usuarios.apellido_usuario,
@@ -89,11 +88,9 @@ def visualizar_datos():
                 FROM usuarios
                 JOIN reservas ON usuarios.id = reservas.usuario_id
                 ORDER BY reservas.fecha_reserva DESC;
-                ''')
+                ''',conn)
         # Resultado del lector y conversion a una archivo Json.
-        columnas = [desc[0] for desc in cursor.description]
-        filas =cursor.fetchall()
-        resultado = [dict(zip(columnas, fila)) for fila in filas]
+        resultado = df.to_dict(orient='records')
         # Retorno de los resultados de las tablas.
         return jsonify({"resultado" : resultado}),200
     # Manejo de errores.
