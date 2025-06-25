@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify # Importacion de la libreria Flask
 from flask_cors import CORS
 from psycopg2 import IntegrityError # Importacion de la libreria SQLite3 para manejo de la base de datos.
 import psycopg2
-import pandas as pd # Importacion de pandas para visualizar los datos.
+
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
