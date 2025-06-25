@@ -88,7 +88,7 @@
 
   <script>
    const precioHora = 30;
-  fetch("https://sistema-reserva-2.onrender.com/show")
+  fetch("http://127.0.0.1:5000/show")
     .then(res => res.json())
     .then(data => {
       const reservas = data.resultado;
@@ -134,7 +134,7 @@
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("https://sistema-reserva-2.onrender.com/delete", {
+          fetch("https://127.0.0.1:5000/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
