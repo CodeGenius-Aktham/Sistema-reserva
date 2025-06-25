@@ -90,7 +90,7 @@
 <script>
   const precioHora = 30;
 
-  fetch("http://127.0.0.1:5000/show")
+  fetch("https://525b-190-24-66-235.ngrok-free.app/show")
     .then(res => res.json())
     .then(data => {
       console.log("Respuesta del servidor:", data); // ← Te ayudará a depurar
@@ -145,7 +145,7 @@
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("http://127.0.0.1:5000/delete", {
+          fetch("https://525b-190-24-66-235.ngrok-free.app/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
