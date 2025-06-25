@@ -91,9 +91,13 @@
   const precioHora = 30;
 
   fetch("https://db81-190-24-66-235.ngrok-free.app/show")
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
     .then(data => {
       console.log("Respuesta del servidor:", data);
+      window.reservasData = data; // Para depuración manual
 
       const reservas = data.resultado;
 
@@ -103,13 +107,21 @@
         return;
       }
 
+      if (reservas.length === 0) {
+        alert("No hay reservas registradas.");
+        return;
+      }
+
       const tbody = document.querySelector("#tabla-reservas tbody");
+      tbody.innerHTML = ""; // Limpia por si hay datos anteriores
+
       let totalHoras = 0;
       let totalDinero = 0;
       let canchasOcupadas = 0;
 
       reservas.forEach((reserva, index) => {
         const tr = document.createElement("tr");
+
         const cliente = `${reserva.nombre_usuario} ${reserva.apellido_usuario}`;
         const horaIni = parseInt(reserva.hora_reserva?.split(":")[0]) || 0;
         const horaFin = parseInt(reserva.hora_termino?.split(":")[0]) || 0;
@@ -139,6 +151,7 @@
       document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
       document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
 
+      // Botones de eliminación
       document.querySelectorAll(".eliminar-btn").forEach(button => {
         button.addEventListener("click", () => {
           const userId = button.getAttribute("data-id");
@@ -170,7 +183,7 @@
     })
     .catch(err => {
       console.error("Error al obtener reservas:", err);
-      alert("No se pudieron cargar las reservas.");
+      alert("No se pudieron cargar las reservas. Revisa la conexión o la URL.");
     });
 </script>
 
