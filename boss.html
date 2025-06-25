@@ -93,6 +93,8 @@
   fetch("http://127.0.0.1:5000/show")
     .then(res => res.json())
     .then(data => {
+      console.log("Respuesta del servidor:", data); // ← Te ayudará a depurar
+
       const reservas = data.resultado;
 
       if (!Array.isArray(reservas)) {
@@ -106,10 +108,9 @@
       let totalDinero = 0;
       let canchasOcupadas = 0;
 
-      reservas.forEach((reserva) => {
+      reservas.forEach((reserva, index) => {
         const tr = document.createElement("tr");
-
-        const cliente = `${reserva.nombre_usuario || '-'} ${reserva.apellido_usuario || '-'}`;
+        const cliente = `${reserva.nombre_usuario} ${reserva.apellido_usuario}`;
         const horaIni = parseInt(reserva.hora_reserva?.split(":")[0]) || 0;
         const horaFin = parseInt(reserva.hora_termino?.split(":")[0]) || 0;
         const horas = Math.max(0, horaFin - horaIni);
@@ -117,35 +118,34 @@
         totalHoras += horas;
         totalDinero += horas * precioHora;
 
-        if (["pendiente", "ocupado"].includes(reserva.estado_reserva)) {
+        if (["pendiente", "ocupado"].includes(reserva.estado_reserva?.toLowerCase())) {
           canchasOcupadas++;
         }
 
         tr.innerHTML = `
           <td>${cliente}</td>
-          <td>${reserva.fecha_reserva || '-'}</td>
-          <td>${reserva.hora_reserva || '-'}</td>
-          <td>${reserva.hora_termino || '-'}</td>
-          <td>${reserva.estado_reserva || '-'}</td>
+          <td>${reserva.fecha_reserva}</td>
+          <td>${reserva.hora_reserva}</td>
+          <td>${reserva.hora_termino}</td>
+          <td>${reserva.estado_reserva}</td>
           <td><button data-id="${reserva.cedula_usuario}" class="eliminar-btn">🗑️</button></td>
         `;
 
         tbody.appendChild(tr);
       });
 
-      // Mostrar los totales
       document.getElementById("horas-totales").textContent = totalHoras;
       document.getElementById("dinero-total").textContent = totalDinero.toFixed(2);
       document.getElementById("canchas-ocupadas").textContent = canchasOcupadas;
 
-      // Evento de eliminación
+      // Agrega eventos a los botones
       document.querySelectorAll(".eliminar-btn").forEach(button => {
         button.addEventListener("click", () => {
           const userId = button.getAttribute("data-id");
 
           if (!confirm("¿Estás seguro de eliminar este usuario y sus reservas?")) return;
 
-          fetch("http://127.0.0.1:5000/delete", {
+          fetch("https://127.0.0.1:5000/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
