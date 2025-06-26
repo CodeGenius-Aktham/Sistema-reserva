@@ -79,6 +79,7 @@ def visualizar_datos():
         # Lector de la query en SQL
         df = pd.read_sql_query('''
                 SELECT
+                    usuarios.id,
                     usuarios.nombre_usuario,
                     usuarios.apellido_usuario,
                     usuarios.cedula_usuario,
