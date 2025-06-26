@@ -33,8 +33,7 @@ def eliminar_datos():
     # Convierte la informacion a un archivo Json.
     data = request.get_json() 
     # Ingreso del campo de eliminacion de usuario.
-    eliminar_usuario = data.get('eliminar','').strip()
-    print("Datos recibidos en DELETE:", datos)
+    eliminar_usuario = int(data.get('eliminar','').strip())
 
     # Validaddor de campo ingresado.
     if not eliminar_usuario:
