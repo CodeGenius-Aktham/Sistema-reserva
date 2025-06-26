@@ -1,18 +1,19 @@
-from flask import Flask, request, jsonify # Importacion de la libreria Flask
-from flask_cors import CORS
-from psycopg2 import IntegrityError # Importacion de la libreria SQLite3 para manejo de la base de datos.
-import psycopg2
-import datetime
+from flask import Flask, request, jsonify # Importacion de la libreria Flask.
+from flask_cors import CORS # Comunicacion entre el backend y el fronted.
+from psycopg2 import IntegrityError #Importacion de la libreria que es el adaptador de postgresql y sus errores.
+import psycopg2 # Importacion de la libreria que maneja la base de datos.
+import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
 import pandas as pd # Importacion de pandas para visualizar los datos.
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
-CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True)
+CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
 
 # Conexion con la base de datos.
 def conexion_db():
     """Establece y devuelve una conexión a la base de datos SQLite."""
     try:
+        # Conexion con la base de datos construida en render donde se hizo el despliegue.
         conn = psycopg2.connect(
             host = "dpg-d1cpt6idbo4c73allepg-a.oregon-postgres.render.com",
             dbname = "usuarios_2vaw",
@@ -21,9 +22,9 @@ def conexion_db():
             port = "5432",
             sslmode = "require"
         )
-        return conn
+        return conn # Retorno de la conexion.
     except IntegrityError as err:
-        conn.rollback()
+        conn.rollback() # Se deshacen los cambios si la conexion falla.
         print(f"Error al conectar a la base de datos SQLite: {err}")
         return None
 
@@ -54,17 +55,17 @@ def eliminar_datos():
         cursor.execute('''DELETE FROM reservas WHERE id = %s''',(eliminar_usuario,))
         cursor.execute('''DELETE FROM usuarios WHERE id = %s''', (eliminar_usuario,))
         # Se suben los cambios.
-        conn.commit()
+        conn.commit() 
         return jsonify({"mensaje" : "Usuario y reserva eliminado con exito."}),200
 
     # Manejo de errores.
     except psycopg2.IntegrityError:
-        conn.rollback()
+        conn.rollback() # Se deshacen los cambios si la conexion falla.
         return jsonify({"error" : "Error de integridad al eliminar los datos.."}),400
     except Exception as error:
         return jsonify({"error" : f"Se detecto un error inesperado : {str(error)}"}),400
     finally:
-        cursor.close()
+        cursor.close() # se cierra el cursor de la base de datos.
         conn.close() # Cierre de la base de datos.
 
 
@@ -93,7 +94,9 @@ def visualizar_datos():
                 ''',conn)
         # Conversión segura de campos de tipo tiempo o fecha
         for columna in ["fecha_reserva", "hora_reserva", "hora_termino"]:
+            # se revisa cada columna en la consulta.
             if columna in df.columns:
+                # se aplica la conversion a cada columna con los parametros adecuados. (La conversion es a un string.)
                 df[columna] = df[columna].apply(
                     lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time)
                     else (x.strftime("%Y-%m-%d") if isinstance(x, datetime.date) else str(x))
