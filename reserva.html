@@ -1,331 +1,326 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reservar Cancha</title>
-  <style>
-      * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reservar Cancha</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      padding: 2rem;
-      color: #333;
-    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      padding: 2rem;
+      color: #333;
+    }
 
-    a.back-button {
-      display: inline-block;
-      margin-bottom: 1.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #6c757d;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      transition: background-color 0.3s;
-    }
+    a.back-button {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #6c757d;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: background-color 0.3s;
+    }
 
-    a.back-button:hover {
-      background-color: #5a6268;
-    }
+    a.back-button:hover {
+      background-color: #5a6268;
+    }
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
 
-    .left-panel {
-      flex: 1 1 50%;
-    }
+    .left-panel {
+      flex: 1 1 50%;
+    }
 
-    .carousel {
-      position: relative;
-      width: 100%;
-      height: 300px;
-      overflow: hidden;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
-    }
+    .carousel {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
 
-    .carousel img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
+    .carousel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
 
-    .carousel img.active {
-      display: block;
-    }
+    .carousel img.active {
+      display: block;
+    }
 
-    .cancha-info {
-      padding: 1rem;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+    .cancha-info {
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-    .right-panel {
-      flex: 1 1 40%;
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+    .right-panel {
+      flex: 1 1 40%;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-    h2 {
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-    }
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
 
-    form label {
-      display: block;
-      margin-bottom: 0.4rem;
-      font-weight: 500;
-    }
+    form label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+    }
 
-    form input,
-    form select {
-      width: 100%;
-      padding: 0.6rem;
-      margin-bottom: 0.8rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.9rem;
-    }
+    form input,
+    form select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
 
-    form button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: background-color 0.3s;
-    }
+    form button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background-color 0.3s;
+    }
 
-    form button:hover {
-      background-color: #0056b3;
-    }
+    form button:hover {
+      background-color: #0056b3;
+    }
 
-    .factura {
-      margin-top: 1rem;
-      background-color: #e9ecef;
-      padding: 1rem;
-      border-radius: 6px;
-    }
+    .factura {
+      margin-top: 1rem;
+      background-color: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+    }
 
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
 
-      .right-panel,
-      .left-panel {
-        flex: 1 1 100%;
-      }
-    }
-  </style>
+      .right-panel,
+      .left-panel {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
 </head>
 <body>
 
-  <a href="index.html" class="back-button">← Regresar</a>
+  <a href="index.html" class="back-button">← Regresar</a>
 
-  <div class="container">
-        <div class="left-panel">
-      <div class="carousel" id="carousel"></div>
-      <div class="cancha-info">
-        <h3 id="cancha-nombre">Cargando...</h3>
-        <p>Ubicación: <span id="cancha-ubicacion"></span></p>
-        <p>Superficie: <span id="cancha-superficie"></span></p>
-        <p>Precio por hora: <strong>$<span id="cancha-precio"></span></strong></p>
-      </div>
-    </div>
+  <div class="container">
+    <div class="left-panel">
+      <div class="carousel" id="carousel"></div>
+      <div class="cancha-info">
+        <h3 id="cancha-nombre">Cargando...</h3>
+        <p>Ubicación: <span id="cancha-ubicacion"></span></p>
+        <p>Superficie: <span id="cancha-superficie"></span></p>
+        <p>Precio por hora: <strong>$<span id="cancha-precio"></span></strong></p>
+      </div>
+    </div>
 
-        <div class="right-panel">
-      <h2>Reservar</h2>
-      <form id="reserva-form">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" required>
+    <div class="right-panel">
+      <h2>Reservar</h2>
+      <form id="reserva-form">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required>
 
-        <label for="apellido">Apellido:</label>
-        <input type="text" id="apellido" required>
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellido" required>
 
-        <label for="cedula">Cédula:</label>
-        <input type="number" id="cedula" pattern="[0-9]*" inputmode="numeric" required>
+        <label for="cedula">Cédula:</label>
+        <input type="text" id="cedula" pattern="\d*" inputmode="numeric" maxlength="15" required>
 
-        <label for="fecha">Fecha:</label>
-        <input type="date" id="fecha" required>
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" required>
 
-        <label for="horaInicio">Hora de inicio:</label>
-        <input type="time" id="horaInicio" required>
+        <label for="horaInicio">Hora de inicio:</label>
+        <input type="time" id="horaInicio" required>
 
-        <label for="horaFin">Hora de fin:</label>
-        <input type="time" id="horaFin" required>
+        <label for="horaFin">Hora de fin:</label>
+        <input type="time" id="horaFin" required>
 
-        <button>Facturar</button>
+        <button type="submit">Facturar</button>
 
-        <div class="factura" id="factura" style="display: none;">
-          <h4>Factura</h4>
-          <p><strong>Cancha:</strong> <span id="fact-cancha"></span></p>
-          <p><strong>Nombre:</strong> <span id="fact-nombre"></span></p>
-          <p><strong>Fecha:</strong> <span id="fact-fecha"></span></p>
-          <p><strong>Horas:</strong> <span id="fact-horas"></span></p>
-          <p><strong>Total:</strong> $<span id="fact-total"></span></p>
-          <br>
-          <button type="submit">Enviar Factura</button>
-        </div>
-      </form>
-    </div>
-  </div>
+        <div class="factura" id="factura" style="display: none;">
+          <h4>Factura</h4>
+          <p><strong>Cancha:</strong> <span id="fact-cancha"></span></p>
+          <p><strong>Nombre:</strong> <span id="fact-nombre"></span></p>
+          <p><strong>Fecha:</strong> <span id="fact-fecha"></span></p>
+          <p><strong>Horas:</strong> <span id="fact-horas"></span></p>
+          <p><strong>Total:</strong> $<span id="fact-total"></span></p>
+          <br>
+          <button type="submit">Enviar Factura</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <script>
-  const params = new URLSearchParams(window.location.search);
-  const canchaNombre = params.get("nombre") || "Cancha Desconocida";
-  const canchaPrecio = parseFloat(params.get("precio")) || 30;
-  const canchaUbicacion = params.get("ubicacion") || "No especificada";
-  const canchaSuperficie = params.get("superficie") || "No especificada";
-  const canchaImgs = (params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1")
-                      .split(",").map(u => decodeURIComponent(u.trim()));
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const canchaNombre = params.get("nombre") || "Cancha Desconocida";
+    const canchaPrecio = parseFloat(params.get("precio")) || 30;
+    const canchaUbicacion = params.get("ubicacion") || "No especificada";
+    const canchaSuperficie = params.get("superficie") || "No especificada";
+    const canchaImgs = (params.get("imagenes") || "https://via.placeholder.com/600x300.png?text=Cancha+1")
+                      .split(",").map(u => decodeURIComponent(u.trim()));
 
-  document.getElementById("cancha-nombre").textContent = canchaNombre;
-  document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
-  document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
-  document.getElementById("cancha-superficie").textContent = canchaSuperficie;
+    document.getElementById("cancha-nombre").textContent = canchaNombre;
+    document.getElementById("cancha-precio").textContent = canchaPrecio.toFixed(2);
+    document.getElementById("cancha-ubicacion").textContent = canchaUbicacion;
+    document.getElementById("cancha-superficie").textContent = canchaSuperficie;
 
-  const carousel = document.getElementById("carousel");
-  canchaImgs.forEach((url, i) => {
-    const img = document.createElement("img");
-    img.src = url;
-    img.alt = `Imagen ${i + 1}`;
-    if (i === 0) img.classList.add("active");
-    carousel.appendChild(img);
-  });
+    const carousel = document.getElementById("carousel");
+    canchaImgs.forEach((url, i) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = `Imagen ${i + 1}`;
+      if (i === 0) img.classList.add("active");
+      carousel.appendChild(img);
+    });
 
-  const images = carousel.querySelectorAll("img");
-  if (images.length > 1) {
-    let current = 0;
-    setInterval(() => {
-      images[current].classList.remove("active");
-      current = (current + 1) % images.length;
-      images[current].classList.add("active");
-    }, 3000);
-  }
-
-  const form = document.getElementById("reserva-form");
-  const facturaDiv = document.getElementById("factura");
-
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const nombre = document.getElementById("nombre").value.trim();
-    const apellido = document.getElementById("apellido").value.trim();
-    const cedula = document.getElementById("cedula").value.trim();
-    const fecha = document.getElementById("fecha").value;
-    const horaInicio = document.getElementById("horaInicio").value;
-    const horaFin = document.getElementById("horaFin").value;
-
-    if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
-      alert("Por favor completa todos los campos.");
-      return;
-    }
-
-    // Validar que la cédula contenga solo dígitos
-    if (!/^\d+$/.test(cedula)) {
-      alert("Por favor, ingresa solo números en el campo de cédula.");
-      return;
+    const images = carousel.querySelectorAll("img");
+    if (images.length > 1) {
+      let current = 0;
+      setInterval(() => {
+        images[current].classList.remove("active");
+        current = (current + 1) % images.length;
+        images[current].classList.add("active");
+      }, 3000);
     }
 
-    const horaIni = parseInt(horaInicio.split(":")[0]);
-    const horaTer = parseInt(horaFin.split(":")[0]);
-    const horas = horaTer - horaIni;
+    const form = document.getElementById("reserva-form");
+    const facturaDiv = document.getElementById("factura");
 
-    if (isNaN(horaIni) || isNaN(horaTer) || horas <= 0) {
-      alert("La hora de fin debe ser mayor que la de inicio.");
-      return;
-    }
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    const total = horas * canchaPrecio;
+      const nombre = document.getElementById("nombre").value.trim();
+      const apellido = document.getElementById("apellido").value.trim();
+      const cedula = document.getElementById("cedula").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      const horaInicio = document.getElementById("horaInicio").value;
+      const horaFin = document.getElementById("horaFin").value;
 
-    // Mostrar factura
-    document.getElementById("fact-cancha").textContent = canchaNombre;
-    document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
-    document.getElementById("fact-fecha").textContent = fecha;
-    document.getElementById("fact-horas").textContent = horas;
-    document.getElementById("fact-total").textContent = total.toFixed(2);
-    facturaDiv.style.display = "block";
+      if (!nombre || !apellido || !cedula || !fecha || !horaInicio || !horaFin) {
+        alert("Por favor completa todos los campos.");
+        return;
+      }
 
-    // Imprimir factura en consola
-    console.log("📄 Factura generada:", {
-      cancha: canchaNombre,
-      cliente: `${nombre} ${apellido}`,
-      fecha: fecha,
-      horas: horas,
-      total: `$${total.toFixed(2)}`
-    });
+      if (!/^\d+$/.test(cedula)) {
+        alert("Por favor, ingresa solo números en el campo de cédula.");
+        return;
+      }
 
-    // Registrar usuario
-    fetch("https://sistema-reserva-2.onrender.com/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nombre: nombre,
-        apellido: apellido,
-        cedula: cedula
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        alert("Error al registrar usuario: " + data.error);
-        return;
-      }
+      const horaIni = parseInt(horaInicio.split(":")[0]);
+      const horaTer = parseInt(horaFin.split(":")[0]);
+      const horas = horaTer - horaIni;
 
-      const usuario_id = data.id; // ✅ ID real retornado del backend
-      if (!usuario_id) {
-        alert("No se recibió ID de usuario válido.");
-        return;
-      }
+      if (isNaN(horaIni) || isNaN(horaTer) || horas <= 0) {
+        alert("La hora de fin debe ser mayor que la de inicio.");
+        return;
+      }
 
-      // Enviar reserva con el ID del usuario registrado
-      fetch("https://sistema-reserva-2.onrender.com/reservation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fecha: fecha,
-          hora: horaInicio,
-          termino: horaFin,
-          estado: "pendiente",
-          usuario_id: usuario_id
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          alert("Error al registrar reserva: " + data.error);
-        } else {
-          alert("✅ Reserva registrada exitosamente.");
-        }
-      })
-      .catch(err => {
-        console.error("Error al registrar reserva:", err);
-        alert("Ocurrió un error al registrar la reserva.");
-      });
-    })
-    .catch(err => {
-      console.error("Error al registrar usuario:", err);
-      alert("Ocurrió un error al registrar el usuario.");
-    });
-  });
-</script>
+      const total = horas * canchaPrecio;
+
+      document.getElementById("fact-cancha").textContent = canchaNombre;
+      document.getElementById("fact-nombre").textContent = `${nombre} ${apellido}`;
+      document.getElementById("fact-fecha").textContent = fecha;
+      document.getElementById("fact-horas").textContent = horas;
+      document.getElementById("fact-total").textContent = total.toFixed(2);
+      facturaDiv.style.display = "block";
+
+      console.log("📄 Factura generada:", {
+        cancha: canchaNombre,
+        cliente: `${nombre} ${apellido}`,
+        fecha: fecha,
+        horas: horas,
+        total: `$${total.toFixed(2)}`
+      });
+
+      fetch("https://sistema-reserva-2.onrender.com/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre,
+          apellido: apellido,
+          cedula: cedula
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert("Error al registrar usuario: " + data.error);
+          return;
+        }
+
+        const usuario_id = data.id;
+        if (!usuario_id) {
+          alert("No se recibió ID de usuario válido.");
+          return;
+        }
+
+        fetch("https://sistema-reserva-2.onrender.com/reservation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fecha: fecha,
+            hora: horaInicio,
+            termino: horaFin,
+            estado: "pendiente",
+            usuario_id: usuario_id
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert("Error al registrar reserva: " + data.error);
+          } else {
+            alert("✅ Reserva registrada exitosamente.");
+          }
+        })
+        .catch(err => {
+          console.error("Error al registrar reserva:", err);
+          alert("Ocurrió un error al registrar la reserva.");
+        });
+      })
+      .catch(err => {
+        console.error("Error al registrar usuario:", err);
+        alert("Ocurrió un error al registrar el usuario.");
+      });
+    });
+  </script>
 
 </body>
 </html>
