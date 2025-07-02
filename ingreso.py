@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask.
 from flask_cors import CORS # Comunicacion entre el backend y el fronted.
 from psycopg2 import IntegrityError # Importacion de la libreria que es el adaptador de postgresql y sus errores.
+from dotenv import load_dotenv # Ayuda a cargar las variables de entorno del archivo .env
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
+import os
 
 
 # Identificador de la aplicacion.
 app = Flask(__name__)
 CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
 
+load_dotenv()
 
 # Conexion a la base de datos de usuario y reservas.
 def conexion_db():
@@ -15,12 +18,12 @@ def conexion_db():
     try:
         # Conexion con la base de datos construida en render donde se hizo el despliegue.
         conn = psycopg2.connect(
-            host = "dpg-d1cpt6idbo4c73allepg-a.oregon-postgres.render.com",
-            dbname = "usuarios_2vaw",
-            user = "usuarios_2vaw_user",
-            password = "caXbkri7k5AzKOSrY4C2LX52uINHgINx",
-            port = "5432",
-            sslmode = "require"
+            host = os.getenv('DB_HOST'),
+            dbname = os.getenv('DB_NAME'),
+            user = os.getenv('DB_USER'),
+            password = os.getenv('DB_PASSWORD'),
+            port = os.getenv('DB_PORT'),
+            sslmode = os.getenv('DB_SSL')
         )
         return conn # Retorno de la conexion.
     # Manejo de errores.
