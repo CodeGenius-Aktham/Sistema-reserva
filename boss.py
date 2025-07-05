@@ -5,7 +5,7 @@ from dotenv import load_dotenv # Ayuda a cargar las variables de entorno del arc
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
 import pandas as pd # Importacion de pandas para visualizar los datos.
-import os
+import os # Libreria para manejar el archivo .env
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
@@ -29,7 +29,7 @@ def conexion_db():
         return conn # Retorno de la conexion.
     except IntegrityError as err:
         conn.rollback() # Se deshacen los cambios si la conexion falla.
-        print(f"Error al conectar a la base de datos SQLite: {err}")
+        print(f"Error al conectar a la base de datos : {err}")
         return None
 
 # Ingreso y enrutador para eliminacion de usuarios.

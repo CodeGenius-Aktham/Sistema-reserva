@@ -3,7 +3,7 @@ from flask_cors import CORS # Comunicacion entre el backend y el fronted.
 from psycopg2 import IntegrityError # Importacion de la libreria que es el adaptador de postgresql y sus errores.
 from dotenv import load_dotenv # Ayuda a cargar las variables de entorno del archivo .env
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
-import os
+import os # Libreria para manejar el archivo .env
 
 
 # Identificador de la aplicacion.
@@ -29,7 +29,7 @@ def conexion_db():
     # Manejo de errores.
     except IntegrityError as err:
         conn.rollback() # Se deshacen los cambios si la conexion falla.
-        print(f"Error al conectar a la base de datos SQLite: {err}")
+        print(f"Error al conectar a la base de datos: {err}")
         return None
 
 
