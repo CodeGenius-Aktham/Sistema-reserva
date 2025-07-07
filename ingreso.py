@@ -27,10 +27,12 @@ def conexion_db():
         )
         return conn # Retorno de la conexion.
     # Manejo de errores.
-    except IntegrityError as err:
-        conn.rollback() # Se deshacen los cambios si la conexion falla.
-        print(f"Error al conectar a la base de datos: {err}")
+    except Exception as error:
+        print(f"error de conexion con la base de datos : {error}.")
         return None
+    except IntegrityError as error:
+        conn.rollback() # Se deshacen los cambios si la conexion falla.
+        return jsonify({'error' : 'error de integridad con la base de datos.'}),400
 
 
 # Ingreso y enrutador del registro.

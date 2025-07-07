@@ -27,10 +27,12 @@ def conexion_db():
             sslmode = os.getenv('DB_SSL')
         )
         return conn # Retorno de la conexion.
-    except IntegrityError as err:
-        conn.rollback() # Se deshacen los cambios si la conexion falla.
-        print(f"Error al conectar a la base de datos : {err}")
+    except Exception as error:
+        print(f"error de conexion con la base de datos : {error}.")
         return None
+    except IntegrityError as error:
+        conn.rollback() # Se deshacen los cambios si la conexion falla.
+        return jsonify({'error' : 'error de integridad con la base de datos.'}),400
 
 # Ingreso y enrutador para eliminacion de usuarios.
 @app.route('/delete', methods = ["POST"])
