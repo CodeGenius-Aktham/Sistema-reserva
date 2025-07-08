@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reserva de Canchas</title>
   <style>
+    /* Estilos generales */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -137,6 +138,11 @@
 
     .content-section.active {
       display: block;
+      flex-grow: 1; /* Permite que la sección ocupe el espacio disponible */
+      display: flex; /* Para centrar el contenido si es un solo elemento */
+      justify-content: center;
+      align-items: center;
+      padding: 1rem; /* Añadir padding para que el panel no toque los bordes */
     }
 
     footer {
@@ -149,8 +155,49 @@
       color: #ffffff;
     }
 
+    /* Estilos para el panel de remodelación (estilo Apple Vision Pro) */
+    .remodelacion-panel {
+      background: rgba(0, 0, 0, 0.7); /* Fondo oscuro con transparencia */
+      backdrop-filter: blur(10px); /* Efecto de desenfoque, como el Vision Pro */
+      -webkit-backdrop-filter: blur(10px); /* Para compatibilidad con Safari */
+      border-radius: 20px; /* Bordes más redondeados */
+      padding: 2.5rem;
+      color: #fff;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Sombra sutil */
+      border: 1px solid rgba(255, 255, 255, 0.18); /* Borde sutil */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 2rem auto; /* Centrar y dar margen */
+    }
+
+    .remodelacion-panel .icon {
+      font-size: 4rem; /* Tamaño del ícono */
+      margin-bottom: 1rem;
+      color: #fff; /* Color blanco para el ícono */
+    }
+
+    .remodelacion-panel h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .remodelacion-panel p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: 0.8; /* Ligeramente transparente */
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
       .grid-container {
         grid-template-columns: 1fr;
       }
@@ -171,6 +218,23 @@
       .titulo {
         font-size: 1.5rem;
       }
+
+      .remodelacion-panel {
+        padding: 1.5rem;
+        margin: 1rem auto;
+      }
+
+      .remodelacion-panel .icon {
+        font-size: 3rem;
+      }
+
+      .remodelacion-panel h2 {
+        font-size: 1.5rem;
+      }
+
+      .remodelacion-panel p {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
@@ -179,7 +243,8 @@
   <!-- ENCABEZADO CON LOGO Y TÍTULO -->
   <header>
     <div class="header-content">
-      <img src="/imagenes/IMG_4602.png" alt="Logo" class="logo" />
+      <!-- Asegúrate de que la ruta de la imagen sea correcta en tu entorno -->
+      <img src="imagenes/IMG_4602.png" alt="Logo" class="logo" onerror="this.onerror=null;this.src='https://placehold.co/80x80/cccccc/333333?text=Logo';" />
       <h1 class="titulo">Complejo Deportivo</h1>
     </div>
   </header>
@@ -196,7 +261,15 @@
   </div>
 
   <div id="padel" class="content-section">
-    <div class="grid-container" id="padel-list"></div>
+    <!-- Panel de remodelación estilo Apple Vision Pro -->
+    <div class="remodelacion-panel">
+      <span class="icon">🚧</span> <!-- Icono de construcción -->
+      <h2>¡En Remodelación!</h2>
+      <p>
+        Nuestras canchas de pádel están siendo mejoradas para ofrecerte la mejor experiencia.
+        Agradecemos tu paciencia y te invitamos a revisar pronto para nuevas actualizaciones.
+      </p>
+    </div>
   </div>
 
   <!-- PIE DE PÁGINA -->
@@ -242,6 +315,7 @@
       }
     ];
 
+    // Las canchas de pádel ya no se renderizan automáticamente
     const padelCanchas = [
       {
         nombre: "Cancha Pádel 1",
@@ -257,13 +331,17 @@
 
     function renderCanchas(lista, contenedorId) {
       const contenedor = document.getElementById(contenedorId);
+      // Limpiar el contenedor antes de renderizar para evitar duplicados si se llama varias veces
+      contenedor.innerHTML = '';
       lista.forEach(cancha => {
         const card = document.createElement("div");
         card.className = "card";
 
+        // Fallback para imágenes de cancha en caso de que la URL no cargue
         const img = document.createElement("img");
         img.src = cancha.imagenes[0];
         img.alt = cancha.nombre;
+        img.onerror = function() { this.onerror=null; this.src='https://placehold.co/150x150/cccccc/333333?text=Imagen+no+disponible'; };
         card.appendChild(img);
 
         const cardContent = document.createElement("div");
@@ -272,13 +350,17 @@
         cardContent.innerHTML = `
           <h3>${cancha.nombre}</h3>
           <p>Precio: $${cancha.precio}/hora</p>
+          <p>Ubicación: ${cancha.ubicacion}</p>
+          <p>Superficie: ${cancha.superficie}</p>
         `;
 
         const btn = document.createElement("button");
         btn.textContent = "Reservar";
         btn.onclick = () => {
+          // Codificar los parámetros para la URL
           const imagenesStr = cancha.imagenes.map(url => encodeURIComponent(url)).join(",");
           const url = `reserva.html?nombre=${encodeURIComponent(cancha.nombre)}&precio=${encodeURIComponent(cancha.precio)}&imagenes=${imagenesStr}&ubicacion=${encodeURIComponent(cancha.ubicacion)}&superficie=${encodeURIComponent(cancha.superficie)}`;
+          // Redirigir a la página de reserva
           window.location.href = url;
         };
 
@@ -288,17 +370,24 @@
       });
     }
 
+    // Renderizar las canchas de fútbol al cargar la página
     renderCanchas(futbolCanchas, "futbol-list");
-    renderCanchas(padelCanchas, "padel-list");
 
+    // COMENTADO: Las canchas de pádel ya no se renderizan con este script.
+    // En su lugar, se muestra el panel de remodelación en el HTML.
+    // renderCanchas(padelCanchas, "padel-list");
+
+    // Lógica para el cambio de pestañas
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".content-section");
 
     tabs.forEach(tab => {
       tab.addEventListener("click", () => {
+        // Remover la clase 'active' de todas las pestañas y secciones
         tabs.forEach(t => t.classList.remove("active"));
         sections.forEach(s => s.classList.remove("active"));
 
+        // Añadir la clase 'active' a la pestaña y sección seleccionada
         tab.classList.add("active");
         document.getElementById(tab.getAttribute("data-tab")).classList.add("active");
       });
