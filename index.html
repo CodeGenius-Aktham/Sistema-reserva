@@ -6,7 +6,7 @@
   <title>Reserva de Canchas</title>
   <style>
     /* Estilos generales */
-    * {
+     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -22,7 +22,6 @@
       min-height: 100vh;
     }
 
-    /* Header */
     .header-content {
       display: flex;
       align-items: center;
@@ -47,7 +46,6 @@
       text-align: center;
     }
 
-    /* Tabs */
     .tabs {
       display: flex;
       justify-content: center;
@@ -68,12 +66,12 @@
       color: #007bff;
     }
 
-    /* Cards grid */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1.5rem;
       padding: 0 1rem;
+      /* RESPONSIVE: ajusta las columnas automáticamente */
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
 
     .card {
@@ -84,8 +82,6 @@
       transition: transform 0.2s ease;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      margin-bottom: 25px;
     }
 
     .card:hover {
@@ -103,7 +99,6 @@
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
     .card-content h3 {
@@ -138,11 +133,6 @@
 
     .content-section.active {
       display: block;
-      flex-grow: 1; /* Permite que la sección ocupe el espacio disponible */
-      display: flex; /* Para centrar el contenido si es un solo elemento */
-      justify-content: center;
-      align-items: center;
-      padding: 1rem; /* Añadir padding para que el panel no toque los bordes */
     }
 
     footer {
@@ -155,30 +145,29 @@
       color: #ffffff;
     }
 
-    /* Estilos para el panel de remodelación (estilo Apple Vision Pro) */
     .remodelacion-panel {
-      background: rgba(0, 0, 0, 0.7); /* Fondo oscuro con transparencia */
-      backdrop-filter: blur(10px); /* Efecto de desenfoque, como el Vision Pro */
-      -webkit-backdrop-filter: blur(10px); /* Para compatibilidad con Safari */
-      border-radius: 20px; /* Bordes más redondeados */
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
       padding: 2.5rem;
       color: #fff;
       text-align: center;
       max-width: 500px;
       width: 100%;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Sombra sutil */
-      border: 1px solid rgba(255, 255, 255, 0.18); /* Borde sutil */
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1.5rem;
-      margin: 2rem auto; /* Centrar y dar margen */
+      margin: 2rem auto;
     }
 
     .remodelacion-panel .icon {
-      font-size: 4rem; /* Tamaño del ícono */
+      font-size: 4rem;
       margin-bottom: 1rem;
-      color: #fff; /* Color blanco para el ícono */
+      color: #fff;
     }
 
     .remodelacion-panel h2 {
@@ -190,16 +179,13 @@
     .remodelacion-panel p {
       font-size: 1.1rem;
       line-height: 1.6;
-      opacity: 0.8; /* Ligeramente transparente */
+      opacity: 0.8;
     }
 
     /* Responsive */
     @media (max-width: 600px) {
       body {
         padding: 1rem;
-      }
-      .grid-container {
-        grid-template-columns: 1fr;
       }
 
       .header-content {
@@ -325,7 +311,7 @@
         ]
       },
       {
-        nombre: "Cancha Fútbol 4",
+        nombre: "Cancha Fútbol 5",
         precio: 90,
         ubicacion: "Ciudad Deportiva",
         superficie: "Césped sintético",
