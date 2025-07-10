@@ -4,6 +4,7 @@ from psycopg2 import IntegrityError # Importacion de la libreria que es el adapt
 from dotenv import load_dotenv # Ayuda a cargar las variables de entorno del archivo .env
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import os # Libreria para manejar el archivo .env
+import time
 
 
 # Identificador de la aplicacion.
@@ -118,11 +119,12 @@ def registro_reserva():
         cursor = conn.cursor()
         # Busqueda del campo "usuario_id".
         usuario_id = data.get('usuario_id')
+        referencia = f'referencia_{usuario_id}_{int(time.time)}'
         # Ingreso de la informacion a la base de datos.
         cursor.execute('''
-            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id)
-            VALUES(%s,%s,%s,%s,%s)
-        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id))
+            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id,referencia)
+            VALUES(%s,%s,%s,%s,%s,%s)
+        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id,referencia))
         # Se suben los cambios a la base de datos.
         conn.commit()
         return jsonify({"mensaje": "reserva ingresada con exito."}), 200

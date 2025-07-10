@@ -93,7 +93,8 @@ def visualizar_datos():
                     reservas.fecha_reserva,
                     reservas.hora_reserva,
                     reservas.hora_termino,
-                    reservas.estado_reserva
+                    reservas.estado_reserva,
+                    reservas.referencia
                 FROM usuarios
                 JOIN reservas ON usuarios.id = reservas.usuario_id
                 ORDER BY reservas.fecha_reserva DESC;
