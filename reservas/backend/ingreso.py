@@ -106,13 +106,14 @@ def registro_reserva():
     if conn is None:
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
-    # Buca el id generado al momento del registro de los datos.
-    usuario_id = data.get('usuario_id')
-    if not usuario_id:
-        return jsonify({"error":"Falta el id del usuario" }),400
-    
+
     # Usamos el id generado para usarlo en la consulta a la base de datos con la que sabremos quien hizo la reserva.
-    usuario_id = int(usuario_id)
+    try:
+        usuario_id = int(data['usuario_id'])
+    except KeyError as error:
+        return jsonify({'error' : f'No se encontro el Id del usuario : {str(error)}'}),400
+    except ValueError:
+        return jsonify({'error' : 'El Id del usuario debe ser numerico'}),400
 
     try:
         # Creacion del cursor para manejo de la base de datos.
