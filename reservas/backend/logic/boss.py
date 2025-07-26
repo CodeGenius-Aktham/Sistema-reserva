@@ -1,38 +1,18 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask.
 from flask_cors import CORS # Comunicacion entre el backend y el fronted.
-from psycopg2 import IntegrityError #Importacion de la libreria que es el adaptador de postgresql y sus errores.
-from dotenv import load_dotenv # Ayuda a cargar las variables de entorno del archivo .env
+from backend.data import conexion # Importamos el modulo de la conexion con la base de datos.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
 import pandas as pd # Importacion de pandas para visualizar los datos.
-import os # Libreria para manejar el archivo .env
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
 CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
 
-load_dotenv()
 
-# Conexion con la base de datos.
 def conexion_db():
-    """Establece y devuelve una conexión a la base de datos SQLite."""
-    try:
-        # Conexion con la base de datos construida en render donde se hizo el despliegue.
-        conn = psycopg2.connect(
-            host = os.getenv('DB_HOST'),
-            dbname = os.getenv('DB_NAME'),
-            user = os.getenv('DB_USER'),
-            password = os.getenv('DB_PASSWORD'),
-            port = os.getenv('DB_PORT'),
-            sslmode = os.getenv('DB_SSL')
-        )
-        return conn # Retorno de la conexion.
-    except Exception as error:
-        print(f"error de conexion con la base de datos : {error}.")
-        return None
-    except IntegrityError as error:
-        conn.rollback() # Se deshacen los cambios si la conexion falla.
-        return jsonify({'error' : 'error de integridad con la base de datos.'}),400
+    return conexion.conexion_db()
+
 
 # Ingreso y enrutador para eliminacion de usuarios.
 @app.route('/delete', methods = ["POST"])
@@ -94,7 +74,6 @@ def visualizar_datos():
                     reservas.hora_reserva,
                     reservas.hora_termino,
                     reservas.estado_reserva,
-                    reservas.referencia
                 FROM usuarios
                 JOIN reservas ON usuarios.id = reservas.usuario_id
                 ORDER BY reservas.fecha_reserva DESC;
