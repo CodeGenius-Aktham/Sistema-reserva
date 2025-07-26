@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask.
 from flask_cors import CORS # Comunicacion entre el backend y el fronted.
-from backend.data import conexion # Importacion del modulo de la base de datos de la capa data.
+from reservas.backend.data import conexion # Importacion del modulo de la base de datos de la capa data.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 
 

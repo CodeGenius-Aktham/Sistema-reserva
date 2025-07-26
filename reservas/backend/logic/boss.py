@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify # Importacion de la libreria Flask.
 from flask_cors import CORS # Comunicacion entre el backend y el fronted.
-from backend.data import conexion # Importamos el modulo de la conexion con la base de datos.
+from reservas.backend.data import conexion # Importamos el modulo de la conexion con la base de datos.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
 import pandas as pd # Importacion de pandas para visualizar los datos.
