@@ -13,7 +13,7 @@ load_dotenv()
 
 # Conexion con la base de datos.
 def conexion_db():
-    """Establece y devuelve una conexión a la base de datos SQLite."""
+    """Establece y devuelve una conexión a la base de datos PostgreSQL."""
     try:
         # Conexion con la base de datos construida en render donde se hizo el despliegue.
         conn = psycopg2.connect(
