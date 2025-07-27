@@ -5,7 +5,7 @@ import psycopg2 # Importacion de la libreria que maneja la base de datos.
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://codegenius-aktham.github.io"}}, supports_credentials=True)
+CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True)
 
 #Funcion que pasa la conexion con la base de datos.
 def conexion_db():
