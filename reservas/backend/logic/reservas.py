@@ -1,11 +1,9 @@
-from flask import Flask, request, jsonify # Importacion de la libreria Flask.
-from flask_cors import CORS # Comunicacion entre el backend y el fronted.
+from flask import Blueprint, request, jsonify # Importacion de la libreria Flask.
 from reservas.backend.data import conexion # Importacion del modulo de la base de datos de la capa data.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 
 
-app = Flask(__name__)
-CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True)
+reservas_bp = Blueprint('reservas_bp',__name__)
 
 
 #Funcion que pasa la conexion con la base de datos.
@@ -14,7 +12,7 @@ def conexion_db():
 
 
 # Ingreso y enrutador de las reservas.
-@app.route('/reservation', methods=['POST'])
+@reservas_bp.route('/reservation', methods=['POST'])
 def registro_reserva():
     """Registra una nueva reserva en la base de datos."""
     # Convierte la informacion en un archivo Json.
