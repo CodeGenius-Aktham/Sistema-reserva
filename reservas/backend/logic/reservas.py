@@ -13,9 +13,11 @@ def conexion_db():
 
 
 # Ingreso y enrutador de las reservas.
-@app.route('/reservation', methods=['POST'])
+@app.route('/reservation', methods=['POST','OPTIONS'])
 def registro_reserva():
     """Registra una nueva reserva en la base de datos."""
+    if request.method == 'OPTIONS':
+        return jsonify({'status' : 'OK'}),200
     # Convierte la informacion en un archivo Json.
     data = request.get_json()
 
