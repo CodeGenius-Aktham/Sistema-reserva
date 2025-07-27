@@ -42,7 +42,7 @@ def registro_usuario():
         cursor.execute('''
             INSERT INTO usuarios(nombre_usuario, apellido_usuario, cedula_usuario)
             VALUES (%s,%s,%s)
-            RETURNING id
+            RETURNING user_id
         ''', (nombre_usuario, apellido_usuario, cedula_usuario))
         # Se busca el nuevo id generado con el ingreso.
         nuevo_id = cursor.fetchone()[0]
