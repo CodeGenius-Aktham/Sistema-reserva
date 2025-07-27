@@ -37,7 +37,7 @@ def registro_reserva():
 
     # Usamos el id generado para usarlo en la consulta a la base de datos con la que sabremos quien hizo la reserva.
     try:
-        usuario_id = int(data['usuario_id'])
+        user_id = int(data['user_id'])
     except KeyError as error:
         return jsonify({'error' : f'No se encontro el Id del usuario : {str(error)}'}),400
     except ValueError:
@@ -47,12 +47,12 @@ def registro_reserva():
         # Creacion del cursor para manejo de la base de datos.
         cursor = conn.cursor()
         # Busqueda del campo "usuario_id".
-        usuario_id = data.get('usuario_id')
+        user_id = data.get('user_id')
         # Ingreso de la informacion a la base de datos.
         cursor.execute('''
-            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id)
+            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva, user_id)
             VALUES(%s,%s,%s,%s,%s)
-        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva, usuario_id))
+        ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva, user_id))
         # Se suben los cambios a la base de datos.
         conn.commit()
         return jsonify({"mensaje": "reserva ingresada con exito."}), 200

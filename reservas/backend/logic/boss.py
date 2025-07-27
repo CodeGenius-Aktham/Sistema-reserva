@@ -34,12 +34,12 @@ def eliminar_datos():
     try:
         cursor = conn.cursor() # Cursor para manejo de la base de datos.
         # Consulta para la busqueda del usuario y consultar si se encuntra o no.
-        cursor.execute('''SELECT * FROM usuarios WHERE id = %s''',(eliminar_usuario,))
+        cursor.execute('''SELECT * FROM usuarios WHERE user_id = %s''',(eliminar_usuario,))
         if cursor.fetchone() is None:
             return jsonify({"error" : "Usuario no encontrado."}),400
         # Eliminacion de datos tanto en la reserva como en la tabla de registro.
-        cursor.execute('''DELETE FROM reservas WHERE id = %s''',(eliminar_usuario,))
-        cursor.execute('''DELETE FROM usuarios WHERE id = %s''', (eliminar_usuario,))
+        cursor.execute('''DELETE FROM reservas WHERE user_id = %s''',(eliminar_usuario,))
+        cursor.execute('''DELETE FROM usuarios WHERE user_id = %s''', (eliminar_usuario,))
         # Se suben los cambios.
         conn.commit() 
         return jsonify({"mensaje" : "Usuario y reserva eliminado con exito."}),200
@@ -66,16 +66,16 @@ def visualizar_datos():
         # Lector de la query en SQL
         df = pd.read_sql_query('''
                 SELECT
-                    usuarios.id,
+                    usuarios.user_id,
                     usuarios.nombre_usuario,
                     usuarios.apellido_usuario,
                     usuarios.cedula_usuario,
                     reservas.fecha_reserva,
                     reservas.hora_reserva,
                     reservas.hora_termino,
-                    reservas.estado_reserva,
+                    reservas.estado_reserva
                 FROM usuarios
-                JOIN reservas ON usuarios.id = reservas.usuario_id
+                JOIN reservas ON usuarios.user_id = reservas.user_id
                 ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
         # Conversión segura de campos de tipo tiempo o fecha
@@ -93,6 +93,6 @@ def visualizar_datos():
         return jsonify({"resultado" : resultado}),200
     # Manejo de errores.
     except Exception as error:
-        return jsonify({"error" : f"error inesperado en el programa : {str(error)}"})
+        return jsonify({"resultado" : [], "error" : f"error inesperado en el programa : {str(error)}"})
     finally:
         conn.close() # Cierre de la base de datos.
