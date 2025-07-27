@@ -7,6 +7,7 @@ import psycopg2 # Importacion de la libreria que maneja la base de datos.
 app = Flask(__name__)
 CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True)
 
+@app.after_request
 def apply_cors(response):
     response.headers["Access-Control-Allow-Origin"] = "https://codegenius-aktham.github.io"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE"
