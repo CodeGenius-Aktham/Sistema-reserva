@@ -7,12 +7,6 @@ import psycopg2 # Importacion de la libreria que maneja la base de datos.
 app = Flask(__name__)
 CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True)
 
-@app.after_request
-def apply_cors(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://codegenius-aktham.github.io"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    return response
 
 #Funcion que pasa la conexion con la base de datos.
 def conexion_db():
@@ -20,11 +14,9 @@ def conexion_db():
 
 
 # Ingreso y enrutador de las reservas.
-@app.route('/reservation', methods=['POST','OPTIONS'])
+@app.route('/reservation', methods=['POST'])
 def registro_reserva():
     """Registra una nueva reserva en la base de datos."""
-    if request.method == 'OPTIONS':
-        return jsonify({'status' : 'OK'}),200
     # Convierte la informacion en un archivo Json.
     data = request.get_json()
 
