@@ -285,8 +285,8 @@
           return;
         }
 
-        const usuario_id = data.id;
-        if (!usuario_id) {
+        const user_id = data.id;
+        if (!user_id) {
           alert("No se recibió ID de usuario válido.");
           return;
         }
@@ -299,7 +299,7 @@
             hora: horaInicio,
             termino: horaFin,
             estado: "pendiente",
-            usuario_id: usuario_id
+            user_id: user_id
           })
         })
         .then(res => res.json())
