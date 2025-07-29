@@ -1,21 +1,17 @@
-from flask import Flask, request, jsonify # Importacion de la libreria Flask.
-from flask_cors import CORS # Comunicacion entre el backend y el fronted.
+from flask import Blueprint, request, jsonify # Importacion de la libreria Flask.
 from reservas.backend.data import conexion # Importamos el modulo de la conexion con la base de datos.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
 import pandas as pd # Importacion de pandas para visualizar los datos.
 
-# Identificador de la pagina para el jefe de la aplicacion.
-app = Flask(__name__)
-CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
-
+boss_admin = Blueprint('panel_boss',__name__)
 
 def conexion_db():
     return conexion.conexion_db()
 
 
 # Ingreso y enrutador para eliminacion de usuarios.
-@app.route('/delete', methods = ["POST"])
+@boss_admin.route('/delete', methods = ["POST"])
 def eliminar_datos():
     # Convierte la informacion a un archivo Json.
     data = request.get_json() 
@@ -56,7 +52,7 @@ def eliminar_datos():
 
 
 # Consulta de datos y enrutador para la visualizacion de datos.
-@app.route('/show', methods = ["GET"])
+@boss_admin.route('/show', methods = ["GET"])
 def visualizar_datos():
     conn = conexion_db() # Recibe la conexion con la base de datos.
     if conn is None:
