@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify # Importacion de la libreria Flask
 from reservas.backend.data import conexion # Importamos el modulo de la conexion con la base de datos.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
-import pandas as pd # Importacion de pandas para visualizar los datos.
 
 boss_admin = Blueprint('panel_boss',__name__)
 
@@ -59,8 +58,9 @@ def visualizar_datos():
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
     try:
+        cursor = conn.cursor()
         # Lector de la query en SQL
-        df = pd.read_sql_query('''
+        cursor.execute('''
                 SELECT
                     usuarios.user_id,
                     usuarios.nombre_usuario,
@@ -74,19 +74,20 @@ def visualizar_datos():
                 JOIN reservas ON usuarios.user_id = reservas.user_id
                 ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
-        # Conversión segura de campos de tipo tiempo o fecha
-        for columna in ["fecha_reserva", "hora_reserva", "hora_termino"]:
-            # se revisa cada columna en la consulta.
-            if columna in df.columns:
-                # se aplica la conversion a cada columna con los parametros adecuados. (La conversion es a un string.)
-                df[columna] = df[columna].apply(
-                    lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time)
-                    else (x.strftime("%Y-%m-%d") if isinstance(x, datetime.date) else str(x))
-                )
-        # Resultado del lector y conversion a una archivo Json.
-        resultado = df.to_dict(orient='records')
-        # Retorno de los resultados de las tablas.
-        return jsonify({"resultado" : resultado}),200
+        reservas = cursor.fetchall()
+        nombres_columnas = ["user_id", "nombre_usuario", "apellido_usuario", "cedula_usuario",
+            "fecha_reserva", "hora_reserva", "hora_termino", "estado_reserva", "reserva_id"]
+        reservas_list = []
+        for row in reservas:
+            reservas_dict = dict(zip(nombres_columnas,row))
+            if 'fecha_reserva' in reservas_dict:
+                reservas_dict['fecha_reserva'] = str(reservas_dict['fecha_reserva'])
+            if 'hora_reserva' in reservas_dict:
+                reservas_dict['hora_reserva'] = str(reservas_dict["hora_reserva"])
+            if 'hora_termino' in reservas_dict:
+                reservas_dict['hora_termino'] = str(reservas_dict["hora_termino"])
+        reservas_list.append(reservas_dict),200
+        return jsonify({"resultado" : reservas_dict}),200
     # Manejo de errores.
     except Exception as error:
         return jsonify({"resultado" : [], "error" : f"error inesperado en el programa : {str(error)}"})
