@@ -71,7 +71,7 @@ def visualizar_datos():
                     usuarios.apellido_usuario,
                     usuarios.cedula_usuario,
                     reservas.fecha_reserva,
-                    reservas.hora_reserva,
+                    reservas.hora_inicio,
                     reservas.hora_termino,
                     reservas.estado_reserva
                 FROM usuarios
