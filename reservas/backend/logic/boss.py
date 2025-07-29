@@ -7,7 +7,7 @@ import pandas as pd # Importacion de pandas para visualizar los datos.
 
 # Identificador de la pagina para el jefe de la aplicacion.
 app = Flask(__name__)
-CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
+CORS(app, origins=["https://codegenius-aktham.github.io"], supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
 
 
 def conexion_db():
@@ -20,7 +20,7 @@ def eliminar_datos():
     # Convierte la informacion a un archivo Json.
     data = request.get_json() 
     # Ingreso del campo de eliminacion de usuario.
-    eliminar_usuario = int(data.get('eliminar','').strip())
+    eliminar_usuario = int(data.get('eliminar',''))
 
     # Validaddor de campo ingresado.
     if not eliminar_usuario:
