@@ -49,7 +49,7 @@ def registro_reserva():
         user_id = data.get('user_id')
         # Ingreso de la informacion a la base de datos.
         cursor.execute('''
-            INSERT INTO reservas(fecha_reserva, hora_reserva, hora_termino, estado_reserva, user_id)
+            INSERT INTO reservas(fecha_reserva, hora_inicio, hora_termino, estado_reserva, user_id)
             VALUES(%s,%s,%s,%s,%s)
         ''', (fecha_reserva, hora_reserva, hora_termino, estado_reserva, user_id))
         # Se suben los cambios a la base de datos.
