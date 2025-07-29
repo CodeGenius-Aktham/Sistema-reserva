@@ -79,7 +79,7 @@ def visualizar_datos():
                 ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
         # Conversión segura de campos de tipo tiempo o fecha
-        for columna in ["fecha_reserva", "hora_reserva", "hora_termino"]:
+        for columna in ["fecha_reserva", "hora_inicio", "hora_termino"]:
             # se revisa cada columna en la consulta.
             if columna in df.columns:
                 # se aplica la conversion a cada columna con los parametros adecuados. (La conversion es a un string.)
