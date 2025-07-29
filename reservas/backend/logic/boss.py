@@ -1,16 +1,21 @@
-from flask import Blueprint, request, jsonify # Importacion de la libreria Flask.
+from flask import Flask, request, jsonify # Importacion de la libreria Flask.
+from flask_cors import CORS # Comunicacion entre el backend y el fronted.
 from reservas.backend.data import conexion # Importamos el modulo de la conexion con la base de datos.
 import psycopg2 # Importacion de la libreria que maneja la base de datos.
 import datetime # Importacion de la libreria 'datetime' para usarña en la conversion a str.
+import pandas as pd # Importacion de pandas para visualizar los datos.
 
-boss_admin = Blueprint('panel_boss',__name__)
+# Identificador de la pagina para el jefe de la aplicacion.
+app = Flask(__name__)
+CORS(app, origins="https://codegenius-aktham.github.io", supports_credentials=True) # URL del fronted con credenciales para hacer peticiones.
+
 
 def conexion_db():
     return conexion.conexion_db()
 
 
 # Ingreso y enrutador para eliminacion de usuarios.
-@boss_admin.route('/delete', methods = ["POST"])
+@app.route('/delete', methods = ["POST"])
 def eliminar_datos():
     # Convierte la informacion a un archivo Json.
     data = request.get_json() 
@@ -51,16 +56,15 @@ def eliminar_datos():
 
 
 # Consulta de datos y enrutador para la visualizacion de datos.
-@boss_admin.route('/show', methods = ["GET"])
+@app.route('/show', methods = ["GET"])
 def visualizar_datos():
     conn = conexion_db() # Recibe la conexion con la base de datos.
     if conn is None:
         return jsonify({"error": "No se pudo conectar a la base de datos."}), 500
     
     try:
-        cursor = conn.cursor()
         # Lector de la query en SQL
-        cursor.execute('''
+        df = pd.read_sql_query('''
                 SELECT
                     usuarios.user_id,
                     usuarios.nombre_usuario,
@@ -74,20 +78,19 @@ def visualizar_datos():
                 JOIN reservas ON usuarios.user_id = reservas.user_id
                 ORDER BY reservas.fecha_reserva DESC;
                 ''',conn)
-        reservas = cursor.fetchall()
-        nombres_columnas = ["user_id", "nombre_usuario", "apellido_usuario", "cedula_usuario",
-            "fecha_reserva", "hora_reserva", "hora_termino", "estado_reserva", "reserva_id"]
-        reservas_list = []
-        for row in reservas:
-            reservas_dict = dict(zip(nombres_columnas,row))
-            if 'fecha_reserva' in reservas_dict:
-                reservas_dict['fecha_reserva'] = str(reservas_dict['fecha_reserva'])
-            if 'hora_reserva' in reservas_dict:
-                reservas_dict['hora_reserva'] = str(reservas_dict["hora_reserva"])
-            if 'hora_termino' in reservas_dict:
-                reservas_dict['hora_termino'] = str(reservas_dict["hora_termino"])
-        reservas_list.append(reservas_dict),200
-        return jsonify({"resultado" : reservas_dict}),200
+        # Conversión segura de campos de tipo tiempo o fecha
+        for columna in ["fecha_reserva", "hora_reserva", "hora_termino"]:
+            # se revisa cada columna en la consulta.
+            if columna in df.columns:
+                # se aplica la conversion a cada columna con los parametros adecuados. (La conversion es a un string.)
+                df[columna] = df[columna].apply(
+                    lambda x: x.strftime("%H:%M:%S") if isinstance(x, datetime.time)
+                    else (x.strftime("%Y-%m-%d") if isinstance(x, datetime.date) else str(x))
+                )
+        # Resultado del lector y conversion a una archivo Json.
+        resultado = df.to_dict(orient='records')
+        # Retorno de los resultados de las tablas.
+        return jsonify({"resultado" : resultado}),200
     # Manejo de errores.
     except Exception as error:
         return jsonify({"resultado" : [], "error" : f"error inesperado en el programa : {str(error)}"})
